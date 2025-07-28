@@ -13,15 +13,17 @@ class ViewController: NSViewController {
     var audioLoop = AudioLoop()
     
     // Sensor settings
-    let maxSensorDistance: Float = 400.0
+    let maxDistance: Float = 400.0
+    let minDistance: Float = 0.0
 
     // Audio settings
     let heartbeatMinVolume: Float = 0.5
     let heartbeatMaxVolume: Float = 1.0
-    let heartbeatMinBPM: Float = 50    // calm, resting heart rate
-    let heartbeatMaxBPM: Float = 140   // intense, stressed state
-    let heartbeatMinRate: Float = 0.8
-    let heartbeatMaxRate: Float = 3
+    let heartbeatStartVolume: Float = 0.5
+
+    let heartbeatMinRate: Float = 1.0
+    let heartbeatMaxRate: Float = 2.0
+    let heartbeatStartRate: Float = 1.0
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -40,20 +42,14 @@ class ViewController: NSViewController {
         playerLayer = layer
 
         // Audio setup
-        audioLoop.setVolume(0.5)
-        audioLoop.setRate(1.0)
+        audioLoop.setVolume(heartbeatStartVolume)
+        audioLoop.setRate(heartbeatStartRate)
         audioLoop.start()
     }
 
-    override var representedObject: Any? {
-        didSet {
-            // Update the view, if already loaded.
-        }
-    }
-    
     @IBAction func distanceChanged(_ sender: NSSlider) {
         let simulatedDistance = sender.floatValue
-        let normalized = max(0, min(1, simulatedDistance / maxSensorDistance))
+        let normalized = max(minDistance, min(1, simulatedDistance / maxDistance))
 
         if let player = playerLayer?.player {
             let duration = player.currentItem?.duration ?? .zero
