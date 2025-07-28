@@ -12,15 +12,16 @@ class ViewController: NSViewController {
     var playerLayer: AVPlayerLayer?
     var audioLoop = AudioLoop()
     
-    // Sensor settings
+    // Distance configuration
     let maxDistance: Float = 400.0
     let minDistance: Float = 0.0
 
-    // Audio settings
+    // Heartbeat volume
     let heartbeatMinVolume: Float = 0.5
     let heartbeatMaxVolume: Float = 1.0
     let heartbeatStartVolume: Float = 0.5
 
+    // Heartbeat rate
     let heartbeatMinRate: Float = 1.0
     let heartbeatMaxRate: Float = 2.0
     let heartbeatStartRate: Float = 1.0
