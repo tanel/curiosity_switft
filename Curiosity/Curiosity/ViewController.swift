@@ -34,7 +34,11 @@ class ViewController: NSViewController {
         // Update the view, if already loaded.
         }
     }
-
+    
+    @IBAction func distanceChanged(_ sender: NSSlider) {
+        let distance = sender.integerValue
+        print("Simulated distance: \(distance)")
+    }
 
 }
 
