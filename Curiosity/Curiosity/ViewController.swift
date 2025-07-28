@@ -10,6 +10,8 @@ import AVFoundation
 
 class ViewController: NSViewController {
     var playerLayer: AVPlayerLayer?
+    
+    let maxSensorDistance: Float = 400.0
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -20,7 +22,6 @@ class ViewController: NSViewController {
         let videoURL = Bundle.main.url(forResource: "video_forward", withExtension: "mp4")!
         let player = AVPlayer(url: videoURL)
         player.actionAtItemEnd = .pause
-        player.play()
 
         let layer = AVPlayerLayer(player: player)
         layer.frame = view.bounds
@@ -36,9 +37,18 @@ class ViewController: NSViewController {
     }
     
     @IBAction func distanceChanged(_ sender: NSSlider) {
-        let distance = sender.integerValue
-        print("Simulated distance: \(distance)")
+        let simulatedDistance = sender.floatValue          // already inverted
+        let normalized = max(0, min(1, simulatedDistance / maxSensorDistance))
+
+        if let player = playerLayer?.player {
+            let duration = player.currentItem?.duration ?? .zero
+            let targetTime = CMTimeMultiplyByFloat64(duration, multiplier: Float64(normalized))
+            player.seek(to: targetTime, toleranceBefore: .zero, toleranceAfter: .zero)
+        }
+
+        print("Distance: \(Int(simulatedDistance)) → position: \(normalized)")
     }
+
 
 }
 
