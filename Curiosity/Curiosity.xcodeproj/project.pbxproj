@@ -6,6 +6,10 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		74918BF62E37AA470037E87E /* video_forward.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = 74918BF52E37AA470037E87E /* video_forward.mp4 */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
 		7447A6552E379F5B00043141 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -27,6 +31,7 @@
 		7447A6432E379F5A00043141 /* Curiosity.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Curiosity.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		7447A6542E379F5B00043141 /* CuriosityTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = CuriosityTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		7447A65E2E379F5B00043141 /* CuriosityUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = CuriosityUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		74918BF52E37AA470037E87E /* video_forward.mp4 */ = {isa = PBXFileReference; lastKnownFileType = file; path = video_forward.mp4; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -79,6 +84,7 @@
 				7447A6572E379F5B00043141 /* CuriosityTests */,
 				7447A6612E379F5B00043141 /* CuriosityUITests */,
 				7447A6442E379F5A00043141 /* Products */,
+				74918BF52E37AA470037E87E /* video_forward.mp4 */,
 			);
 			sourceTree = "<group>";
 		};
@@ -212,6 +218,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				74918BF62E37AA470037E87E /* video_forward.mp4 in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
