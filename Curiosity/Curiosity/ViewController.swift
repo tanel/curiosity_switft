@@ -11,21 +11,8 @@ import AVFoundation
 class ViewController: NSViewController {
     var playerLayer: AVPlayerLayer?
     var audioLoop = AudioLoop()
+    var cfg = loadConfiguration()
     
-    // Distance configuration
-    let maxDistance: Float = 400.0
-    let minDistance: Float = 0.0
-
-    // Heartbeat volume
-    let heartbeatMinVolume: Float = 0.5
-    let heartbeatMaxVolume: Float = 1.0
-    let heartbeatStartVolume: Float = 0.5
-
-    // Heartbeat rate
-    let heartbeatMinRate: Float = 1.0
-    let heartbeatMaxRate: Float = 2.0
-    let heartbeatStartRate: Float = 1.0
-
     override func viewDidLoad() {
         super.viewDidLoad()
 
@@ -43,14 +30,14 @@ class ViewController: NSViewController {
         playerLayer = layer
 
         // Audio setup
-        audioLoop.setVolume(heartbeatStartVolume)
-        audioLoop.setRate(heartbeatStartRate)
+        audioLoop.setVolume(cfg.heartbeatStartVolume)
+        audioLoop.setRate(cfg.heartbeatStartRate)
         audioLoop.start()
     }
 
     @IBAction func distanceChanged(_ sender: NSSlider) {
         let simulatedDistance = sender.floatValue
-        let normalized = max(minDistance, min(1, simulatedDistance / maxDistance))
+        let normalized = max(cfg.minDistance, min(1, simulatedDistance / cfg.maxDistance))
 
         if let player = playerLayer?.player {
             let duration = player.currentItem?.duration ?? .zero
@@ -62,8 +49,8 @@ class ViewController: NSViewController {
         let forward = 1 - normalized
         let inverse = 1 - forward
 
-        let rate = heartbeatMinRate + inverse * (heartbeatMaxRate - heartbeatMinRate)
-        let volume = heartbeatMinVolume + inverse * (heartbeatMaxVolume - heartbeatMinVolume)
+        let rate = cfg.heartbeatMinRate + inverse * (cfg.heartbeatMaxRate - cfg.heartbeatMinRate)
+        let volume = cfg.heartbeatMinVolume + inverse * (cfg.heartbeatMaxVolume - cfg.heartbeatMinVolume)
         audioLoop.setVolume(Float(volume))
         audioLoop.setRate(Float(rate))
 

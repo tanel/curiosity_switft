@@ -1,0 +1,10 @@
+{
+  "maxDistance": 400,
+  "minDistance": 0,
+  "heartbeatMinVolume": 0.5,
+  "heartbeatMaxVolume": 1.0,
+  "heartbeatStartVolume": 0.5,
+  "heartbeatMinRate": 1.0,
+  "heartbeatMaxRate": 2.0,
+  "heartbeatStartRate": 1.0
+}
