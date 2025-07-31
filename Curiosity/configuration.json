@@ -8,5 +8,6 @@
   "heartbeatMaxRate": 2.0,
   "heartbeatStartRate": 1.0,
   "fullScreen": false,
+  "showSimulationSlider": true,
   "frameRate": 60.0
 }

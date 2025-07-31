@@ -24,6 +24,7 @@ struct Configuration: Codable {
     
     // Screen
     var fullScreen: Bool
+    var showSimulationSlider: Bool
     
     // Update loop
     var frameRate: Double

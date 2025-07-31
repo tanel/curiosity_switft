@@ -43,6 +43,9 @@ class ViewController: NSViewController {
         
         // Reset slider value just in case we changed it in XCode by accident
         distanceSlider.floatValue = 0
+        
+        // Simulating with slider is not always enabled
+        distanceSlider.isHidden = !cfg.showSimulationSlider
 
         // Initialize video player
         let videoURL = Bundle.main.url(forResource: "video_forward", withExtension: "mp4")!
