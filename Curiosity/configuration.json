@@ -6,5 +6,6 @@
   "heartbeatStartVolume": 0.5,
   "heartbeatMinRate": 1.0,
   "heartbeatMaxRate": 2.0,
-  "heartbeatStartRate": 1.0
+  "heartbeatStartRate": 1.0,
+  "fullScreen": false
 }

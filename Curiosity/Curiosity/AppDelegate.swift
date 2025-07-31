@@ -10,12 +10,13 @@ import Cocoa
 @main
 class AppDelegate: NSObject, NSApplicationDelegate {
 
-    
-
+    var cfg = loadConfiguration()
 
     func applicationDidFinishLaunching(_ aNotification: Notification) {
-        DispatchQueue.main.async {
-            NSApp.mainWindow?.toggleFullScreen(nil)
+        if cfg.fullScreen {
+            DispatchQueue.main.async {
+                NSApp.mainWindow?.toggleFullScreen(nil)
+            }
         }
     }
 

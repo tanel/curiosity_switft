@@ -21,6 +21,9 @@ struct Configuration: Codable {
     var heartbeatMinRate: Float
     var heartbeatMaxRate: Float
     var heartbeatStartRate: Float
+    
+    // Screen
+    var fullScreen: Bool
 }
 
 func loadConfiguration() -> Configuration {
