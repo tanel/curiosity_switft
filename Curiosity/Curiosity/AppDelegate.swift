@@ -9,8 +9,8 @@ import Cocoa
 
 @main
 class AppDelegate: NSObject, NSApplicationDelegate {
-
-    var cfg = loadConfiguration()
+    
+    var cfg = ConfigurationManager.shared
 
     func applicationDidFinishLaunching(_ aNotification: Notification) {
         if cfg.fullScreen {

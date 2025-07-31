@@ -11,7 +11,7 @@ import AVFoundation
 class ViewController: NSViewController {
     var playerLayer: AVPlayerLayer?
     var audioLoop = AudioLoop()
-    var cfg = loadConfiguration()
+    var cfg = ConfigurationManager.shared
     
     override func viewDidLoad() {
         super.viewDidLoad()
