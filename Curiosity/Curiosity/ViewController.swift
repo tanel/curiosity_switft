@@ -77,9 +77,18 @@ class ViewController: NSViewController {
     }
     
     func update() {
+        updateDistance()
+        updateState()
+        updateVideo()
+        updateAudio()
+    }
+    
+    func updateDistance() {
         // FIXME: read from serial if not in simulation mode
         distance = cfg.maxDistance - distanceSlider.floatValue
-        
+    }
+    
+    func updateState() {
         switch state {
         case .waiting:
             handleWaiting()
@@ -94,6 +103,14 @@ class ViewController: NSViewController {
         case .statsKilled:
             handleStatsKilled()
         }
+    }
+    
+    func updateVideo() {
+        
+    }
+    
+    func updateAudio() {
+        
     }
     
     func handleWaiting() {
