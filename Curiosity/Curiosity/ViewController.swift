@@ -7,6 +7,7 @@
 
 import Cocoa
 import AVFoundation
+import os
 
 class ViewController: NSViewController {
     var playerLayer: AVPlayerLayer?
@@ -14,13 +15,18 @@ class ViewController: NSViewController {
     var cfg = ConfigurationManager.shared
     var updateTimer: Timer?
     var introImageView: NSImageView?
-    
+    var state = GameState.waiting
+    var log = Logger(subsystem: "com.example.Curiosity", category: "App")
+    var distance: Float = 0
     
     @IBOutlet weak var distanceSlider: NSSlider!
     
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        // Assume max distance before we start
+        distance = cfg.maxDistance
 
         // Set background to black
         view.wantsLayer = true
@@ -71,11 +77,64 @@ class ViewController: NSViewController {
     }
     
     func update() {
-        // Your per-frame logic here
+        // FIXME: read from serial if not in simulation mode
+        distance = cfg.maxDistance - distanceSlider.floatValue
+        
+        switch state {
+        case .waiting:
+            handleWaiting()
+        case .started:
+            handleStarted()
+        case .saved:
+            handleSaved()
+        case .killed:
+            handleKilled()
+        case .statsSaved:
+            handleStatsSaved()
+        case .statsKilled:
+            handleStatsKilled()
+        }
+    }
+    
+    func handleWaiting() {
+        if isInSaveZone() {
+            startGame()
+        }
+    }
+    
+    func handleStarted() {
+        
+    }
+    
+    func handleSaved() {
+        
+    }
+    
+    func handleKilled() {
+        
+    }
+    
+    func handleStatsSaved() {
+        
+    }
+    
+    func handleStatsKilled() {
+        
+    }
+    
+    func isInSaveZone() -> Bool {
+        return distance < cfg.maxDistance && distance >= cfg.maxDistance - cfg.saveZone
+    }
+    
+    func startGame() {
+        state = .started
+        
+        // FIXME: serialReader.Enable();
+        
+        log.info("Game started")
     }
 
-    @IBAction func distanceChanged(_ sender: NSSlider) {
-        let simulatedDistance = sender.floatValue
+    /*
         let normalized = max(cfg.minDistance, min(1, simulatedDistance / cfg.maxDistance))
 
         if let player = playerLayer?.player {
@@ -95,4 +154,5 @@ class ViewController: NSViewController {
 
         print("Distance: \(Int(simulatedDistance)) → position: \(normalized)")
     }
+     */
 }

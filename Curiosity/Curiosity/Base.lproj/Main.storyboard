@@ -715,9 +715,6 @@
                                 <sliderCell key="cell" continuous="YES" state="on" alignment="left" maxValue="400" doubleValue="190.703125" tickMarkPosition="above" sliderType="linear" id="thB-n5-edY">
                                     <font key="font" metaFont="cellTitle"/>
                                 </sliderCell>
-                                <connections>
-                                    <action selector="distanceChanged:" target="XfG-lQ-9wD" id="55I-6h-dTQ"/>
-                                </connections>
                             </slider>
                         </subviews>
                     </view>

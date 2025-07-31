@@ -1,6 +1,8 @@
 {
-  "maxDistance": 400,
+  "maxDistance": 420,
   "minDistance": 0,
+  "saveZone": 360,
+  "killZone": 110,
   "heartbeatMinVolume": 0.5,
   "heartbeatMaxVolume": 1.0,
   "heartbeatStartVolume": 0.5,

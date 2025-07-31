@@ -11,6 +11,10 @@ struct Configuration: Codable {
     // Distance
     var maxDistance: Float
     var minDistance: Float
+    
+    // Game zones
+    var saveZone: Float
+    var killZone: Float
 
     // Heartbeat volume
     var heartbeatMinVolume: Float
