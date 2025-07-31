@@ -24,6 +24,9 @@ struct Configuration: Codable {
     
     // Screen
     var fullScreen: Bool
+    
+    // Update loop
+    var frameRate: Double
 }
 
 func loadConfiguration() -> Configuration {

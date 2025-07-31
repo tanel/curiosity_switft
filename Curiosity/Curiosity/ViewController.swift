@@ -12,6 +12,7 @@ class ViewController: NSViewController {
     var playerLayer: AVPlayerLayer?
     var audioLoop = AudioLoop()
     var cfg = ConfigurationManager.shared
+    var updateTimer: Timer?
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -33,6 +34,14 @@ class ViewController: NSViewController {
         audioLoop.setVolume(cfg.heartbeatStartVolume)
         audioLoop.setRate(cfg.heartbeatStartRate)
         audioLoop.start()
+        
+        updateTimer = Timer.scheduledTimer(withTimeInterval: 1.0 / cfg.frameRate, repeats: true) { [weak self] _ in
+            self?.update()
+        }
+    }
+    
+    func update() {
+        // Your per-frame logic here
     }
 
     @IBAction func distanceChanged(_ sender: NSSlider) {

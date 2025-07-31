@@ -7,5 +7,6 @@
   "heartbeatMinRate": 1.0,
   "heartbeatMaxRate": 2.0,
   "heartbeatStartRate": 1.0,
-  "fullScreen": false
+  "fullScreen": false,
+  "frameRate": 60.0
 }
