@@ -712,7 +712,7 @@
                             <slider verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="6V8-J1-CXu">
                                 <rect key="frame" x="18" y="517" width="444" height="28"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                                <sliderCell key="cell" continuous="YES" state="on" alignment="left" maxValue="400" tickMarkPosition="above" sliderType="linear" id="thB-n5-edY">
+                                <sliderCell key="cell" continuous="YES" state="on" alignment="left" maxValue="400" doubleValue="190.703125" tickMarkPosition="above" sliderType="linear" id="thB-n5-edY">
                                     <font key="font" metaFont="cellTitle"/>
                                 </sliderCell>
                                 <connections>
@@ -721,6 +721,9 @@
                             </slider>
                         </subviews>
                     </view>
+                    <connections>
+                        <outlet property="distanceSlider" destination="6V8-J1-CXu" id="hZc-Rt-yQX"/>
+                    </connections>
                 </viewController>
                 <customObject id="rPt-NT-nkU" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>
             </objects>

@@ -13,21 +13,47 @@ class ViewController: NSViewController {
     var audioLoop = AudioLoop()
     var cfg = ConfigurationManager.shared
     var updateTimer: Timer?
+    var introImageView: NSImageView?
+    
+    
+    @IBOutlet weak var distanceSlider: NSSlider!
+    
     
     override func viewDidLoad() {
         super.viewDidLoad()
 
+        // Set background to black
         view.wantsLayer = true
         view.layer?.backgroundColor = NSColor.black.cgColor
+        
+        // Load intro image
+        if let image = NSImage(named: "intro.jpg") {
+            let imageView = NSImageView(image: image)
+            imageView.frame = view.bounds
+            imageView.imageScaling = .scaleAxesIndependently
+            imageView.autoresizingMask = [.width, .height]
+            view.addSubview(imageView, positioned: .below, relativeTo: nil)
+            introImageView = imageView
+        }
+        
+        // Make the simulation slider more visible
+        distanceSlider.wantsLayer = true
+        distanceSlider.layer?.backgroundColor = NSColor.darkGray.cgColor
+        distanceSlider.layer?.cornerRadius = 4
+        
+        // Reset slider value just in case we changed it in XCode by accident
+        distanceSlider.floatValue = 0
 
+        // Initialize video player
         let videoURL = Bundle.main.url(forResource: "video_forward", withExtension: "mp4")!
         let player = AVPlayer(url: videoURL)
         player.actionAtItemEnd = .pause
 
+        // Add video layer to screen
         let layer = AVPlayerLayer(player: player)
         layer.frame = view.bounds
         layer.autoresizingMask = [.layerWidthSizable, .layerHeightSizable]
-        view.layer?.addSublayer(layer)
+        //view.layer?.addSublayer(layer)
         playerLayer = layer
 
         // Audio setup
@@ -35,6 +61,7 @@ class ViewController: NSViewController {
         audioLoop.setRate(cfg.heartbeatStartRate)
         audioLoop.start()
         
+        // Start update loop
         updateTimer = Timer.scheduledTimer(withTimeInterval: 1.0 / cfg.frameRate, repeats: true) { [weak self] _ in
             self?.update()
         }
