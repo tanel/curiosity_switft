@@ -706,11 +706,24 @@
             <objects>
                 <viewController id="XfG-lQ-9wD" customClass="ViewController" customModule="Curiosity" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" id="m2S-Jp-Qdl">
-                        <rect key="frame" x="0.0" y="0.0" width="878" height="563"/>
+                        <rect key="frame" x="0.0" y="0.0" width="1126" height="700"/>
                         <autoresizingMask key="autoresizingMask"/>
                         <subviews>
+                            <customView fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="sNb-a7-8aa">
+                                <rect key="frame" x="0.0" y="221" width="838" height="479"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                            </customView>
+                            <textField focusRingType="none" horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="6nv-Co-HKt">
+                                <rect key="frame" x="9" y="20" width="444" height="142"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                <textFieldCell key="cell" lineBreakMode="clipping" title="Label" id="H9B-lR-uIY">
+                                    <font key="font" metaFont="system"/>
+                                    <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
+                                    <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
+                                </textFieldCell>
+                            </textField>
                             <slider verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="6V8-J1-CXu">
-                                <rect key="frame" x="18" y="517" width="444" height="28"/>
+                                <rect key="frame" x="9" y="175" width="444" height="28"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                 <sliderCell key="cell" continuous="YES" state="on" alignment="left" maxValue="400" doubleValue="190.703125" tickMarkPosition="above" sliderType="linear" id="thB-n5-edY">
                                     <font key="font" metaFont="cellTitle"/>
@@ -719,12 +732,14 @@
                         </subviews>
                     </view>
                     <connections>
+                        <outlet property="debugLabel" destination="6nv-Co-HKt" id="lXk-Qd-mYr"/>
                         <outlet property="distanceSlider" destination="6V8-J1-CXu" id="hZc-Rt-yQX"/>
+                        <outlet property="videoContainerView" destination="sNb-a7-8aa" id="53Q-mT-jQg"/>
                     </connections>
                 </viewController>
                 <customObject id="rPt-NT-nkU" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="274" y="801.5"/>
+            <point key="canvasLocation" x="398" y="870"/>
         </scene>
     </scenes>
 </document>

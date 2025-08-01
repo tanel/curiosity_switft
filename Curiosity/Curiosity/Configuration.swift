@@ -9,28 +9,32 @@ import Foundation
 
 struct Configuration: Codable {
     // Distance
-    var maxDistance: Float
-    var minDistance: Float
+    var maxDistance: Double
+    var minDistance: Double
     
     // Game zones
-    var saveZone: Float
-    var killZone: Float
+    var saveZone: Double
+    var deathZone: Double
 
     // Heartbeat volume
-    var startingVolume: Float
-    var finishingVolume: Float
-    var waitingVolume: Float
+    var startingVolume: Double
+    var finishingVolume: Double
+    var waitingVolume: Double
 
     // Heartbeat rate
-    var startingHeartBeatSpeed: Float
-    var finishingHeartBeatSpeed: Float
+    var startingHeartBeatSpeed: Double
+    var finishingHeartBeatSpeed: Double
     
     // Screen
     var fullScreen: Bool
     var showSimulationSlider: Bool
+    var debugOverlay: Bool
     
     // Update loop
     var frameRate: Double
+    
+    // Timing
+    var saveActivateSeconds: Double
 }
 
 func loadConfiguration() -> Configuration {

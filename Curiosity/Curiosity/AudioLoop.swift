@@ -59,11 +59,11 @@ class AudioLoop {
         return player.isPlaying
     }
 
-    func setRate(_ rate: Float) {
-        timePitch.rate = rate
+    func setRate(_ rate: Double) {
+        timePitch.rate = Float(rate)
     }
 
-    func setVolume(_ volume: Float) {
-        player.volume = volume
+    func setVolume(_ volume: Double) {
+        player.volume = Float(volume)
     }
 }

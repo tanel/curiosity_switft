@@ -2,7 +2,7 @@
   "maxDistance": 420,
   "minDistance": 0,
   "saveZone": 360,
-  "killZone": 110,
+  "deathZone": 110,
   "startingVolume": 0.5,
   "finishingVolume": 1.0,
   "waitingVolume": 0.1,
@@ -10,5 +10,7 @@
   "finishingHeartBeatSpeed": 1.0,
   "fullScreen": false,
   "showSimulationSlider": true,
-  "frameRate": 60.0
+  "debugOverlay": true,
+  "frameRate": 60.0,
+  "saveActivateSeconds": 10,
 }
