@@ -19,6 +19,8 @@ class ViewController: NSViewController {
     var log = Logger(subsystem: "com.example.Curiosity", category: "App")
     var distance: Float = 0
     var normalizedDistance: Float = 0
+    var audioRate: Float = 0
+    var audioVolume: Float = 0
     
     @IBOutlet weak var distanceSlider: NSSlider!
     
@@ -27,7 +29,7 @@ class ViewController: NSViewController {
         
         // Assume max distance before we start
         distance = cfg.maxDistance
-        normalizedDistance = normalizeDistance(value: distance)
+        calculateNormalizedDistance()
 
         // Set background to black
         view.wantsLayer = true
@@ -87,19 +89,14 @@ class ViewController: NSViewController {
     func updateDistance() {
         // FIXME: read from serial if not in simulation mode
         let newDistance = cfg.maxDistance - distanceSlider.floatValue
-        let newNormalized = normalizeDistance(value: newDistance)
         if distance != newDistance {
-            log.info("Distance: \(newDistance), normalized distance \(newNormalized)")
+            calculateNormalizedDistance()
+            log.info("Distance: \(newDistance), normalized distance \(self.normalizedDistance)")
         }
         
         distance = newDistance
-        normalizedDistance = newNormalized
     }
-    
-    func normalizeDistance(value: Float) -> Float {
-        return max(cfg.minDistance, min(1, value / cfg.maxDistance))
-    }
-    
+
     func updateState() {
         switch state {
         case .waiting:
@@ -181,16 +178,32 @@ class ViewController: NSViewController {
   */
     }
     
-    func updateAudio() {
-        // Audio parameters
-        let forward = 1 - normalizedDistance
-        let inverse = 1 - forward
-
-        let rate = cfg.heartbeatMinRate + inverse * (cfg.heartbeatMaxRate - cfg.heartbeatMinRate)
-        let volume = cfg.heartbeatMinVolume + inverse * (cfg.heartbeatMaxVolume - cfg.heartbeatMinVolume)
-        audioLoop.setVolume(Float(volume))
-        audioLoop.setRate(Float(rate))
+    func calculateNormalizedDistance() {
+        normalizedDistance = mapValue(value: distance, inputMin: 0, inputMax: cfg.maxDistance, outputMin: 0, outputMax: 1)
     }
+    
+    func updateAudio() {
+        let newAuditoRate = mapValue(value: distance, inputMin: 0, inputMax: cfg.maxDistance, outputMin: cfg.heartbeatMaxRate, outputMax: cfg.heartbeatMinRate)
+        if audioRate != newAuditoRate {
+            audioLoop.setRate(newAuditoRate)
+            log.info("Audio rate set to \(newAuditoRate)")
+            audioRate = newAuditoRate
+        }
+        
+        let newAudioVolume = mapValue(value: distance, inputMin: 0, inputMax: cfg.maxDistance, outputMin: cfg.heartbeatMaxVolume, outputMax: cfg.heartbeatMinVolume)
+        if audioVolume != newAudioVolume {
+            audioLoop.setVolume(newAudioVolume)
+            log.info("Audio volume set to \(newAudioVolume)")
+            audioVolume = newAudioVolume
+        }
+    }
+    
+    func mapValue(value: Float, inputMin: Float, inputMax: Float, outputMin: Float, outputMax: Float) -> Float {
+        if inputMin == inputMax { return outputMin }
+        let normalized = (value - inputMin) / (inputMax - inputMin)
+        return outputMin + normalized * (outputMax - outputMin)
+    }
+
     
     func handleWaiting() {
         if isInSaveZone() {
