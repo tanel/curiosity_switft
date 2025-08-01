@@ -54,6 +54,10 @@ class AudioLoop {
     func stop() {
         player.stop()
     }
+    
+    func isPlaying() -> Bool {
+        return player.isPlaying
+    }
 
     func setRate(_ rate: Float) {
         timePitch.rate = rate

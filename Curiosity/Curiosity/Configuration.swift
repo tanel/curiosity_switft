@@ -17,9 +17,9 @@ struct Configuration: Codable {
     var killZone: Float
 
     // Heartbeat volume
-    var heartbeatMinVolume: Float
-    var heartbeatMaxVolume: Float
-    var heartbeatStartVolume: Float
+    var startingVolume: Float
+    var finishingVolume: Float
+    var waitingVolume: Float
 
     // Heartbeat rate
     var heartbeatMinRate: Float
