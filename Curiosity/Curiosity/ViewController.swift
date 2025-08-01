@@ -68,11 +68,6 @@ class ViewController: NSViewController {
         view.layer?.addSublayer(layer)
         playerLayer = layer
 
-        // Audio setup
-        heartbeatSound.setVolume(cfg.waitingVolume)
-        heartbeatSound.setRate(cfg.heartbeatStartRate)
-        heartbeatSound.start()
-        
         // Start update loop
         updateTimer = Timer.scheduledTimer(withTimeInterval: 1.0 / cfg.frameRate, repeats: true) { [weak self] _ in
             self?.update()
@@ -185,32 +180,36 @@ class ViewController: NSViewController {
     func updateAudio() {
         if state == .statsSaved || state == .statsKilled || state == .killed {
             if heartbeatSound.isPlaying() {
+                log.info( "Stopping heartbeat sound")
                 heartbeatSound.stop()
             }
-        } else {
-            if !heartbeatSound.isPlaying() {
-                heartbeatSound.start()
-            }
             
-            // Adjust rate
-            let newAuditoRate = mapValue(value: distance, inputMin: cfg.minDistance, inputMax: cfg.maxDistance, outputMin: cfg.heartbeatMaxRate, outputMax: cfg.heartbeatMinRate)
-            if audioRate != newAuditoRate {
-                heartbeatSound.setRate(newAuditoRate)
-                log.info("Audio rate set to \(newAuditoRate)")
-                audioRate = newAuditoRate
-            }
-            
-            // Adjust volume
-            var newAudioVolume = mapValue(value: distance, inputMin: cfg.minDistance, inputMax: cfg.maxDistance, outputMin: cfg.finishingVolume, outputMax: cfg.startingVolume)
-            if state == .waiting {
-                newAudioVolume = cfg.waitingVolume
-            }
-            
-            if audioVolume != newAudioVolume {
-                heartbeatSound.setVolume(newAudioVolume)
-                log.info("Audio volume set to \(newAudioVolume)")
-                audioVolume = newAudioVolume
-            }
+            return
+        }
+
+        if !heartbeatSound.isPlaying() {
+            log.info("Starting heartbeat sound")
+            heartbeatSound.start()
+        }
+        
+        // Adjust rate
+        let newAuditoRate = mapValue(value: distance, inputMin: cfg.minDistance, inputMax: cfg.maxDistance, outputMin: cfg.heartbeatMaxRate, outputMax: cfg.heartbeatMinRate)
+        if audioRate != newAuditoRate {
+            heartbeatSound.setRate(newAuditoRate)
+            log.info("Audio rate set to \(newAuditoRate)")
+            audioRate = newAuditoRate
+        }
+        
+        // Adjust volume
+        var newAudioVolume = mapValue(value: distance, inputMin: cfg.minDistance, inputMax: cfg.maxDistance, outputMin: cfg.finishingVolume, outputMax: cfg.startingVolume)
+        if state == .waiting {
+            newAudioVolume = cfg.waitingVolume
+        }
+        
+        if audioVolume != newAudioVolume {
+            heartbeatSound.setVolume(newAudioVolume)
+            log.info("Audio volume set to \(newAudioVolume)")
+            audioVolume = newAudioVolume
         }
     }
     
