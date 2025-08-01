@@ -22,9 +22,8 @@ struct Configuration: Codable {
     var waitingVolume: Float
 
     // Heartbeat rate
-    var heartbeatMinRate: Float
-    var heartbeatMaxRate: Float
-    var heartbeatStartRate: Float
+    var startingHeartBeatSpeed: Float
+    var finishingHeartBeatSpeed: Float
     
     // Screen
     var fullScreen: Bool

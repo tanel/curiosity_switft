@@ -109,68 +109,22 @@ class ViewController: NSViewController {
         }
     }
     
-    func updateVideo() {
+
+
+    
+    func isVideoPlaying() -> Bool {
         let videoPlayer = playerLayer?.player
-        let isVideoPlaying = videoPlayer?.rate != 0 && videoPlayer?.error == nil
-
-        /*
-        let duration = player.currentItem?.duration ?? .zero
-        let targetTime = CMTimeMultiplyByFloat64(duration, multiplier: Float64(normalized))
-        videoPlayer.seek(to: targetTime, toleranceBefore: .zero, toleranceAfter: .zero)
-         */
+        return videoPlayer?.rate != 0 && videoPlayer?.error == nil
+    }
+    
+    /*
+    let duration = player.currentItem?.duration ?? .zero
+    let targetTime = CMTimeMultiplyByFloat64(duration, multiplier: Float64(normalized))
+    videoPlayer.seek(to: targetTime, toleranceBefore: .zero, toleranceAfter: .zero)
+     */
         
-        if state == .waiting || state == .statsKilled || state == .statsSaved {
-            if isVideoPlaying {
-                videoPlayer?.pause()
-            }
-        } else if state == .killed {
-            if !isVideoPlaying {
-                let fps: Float64 = 30
-                let frameNumber: Int64 = 150
-                let targetTime = CMTime(value: frameNumber, timescale: Int32(fps))
-                videoPlayer?.seek(to: targetTime, toleranceBefore: .zero, toleranceAfter: .zero)
-                videoPlayer?.play()
-            }
-        }
-/*
-        } else if state == .killed {
-            if !isVideoPlaying() {
-                // Jump to kill part
-                let targetTime = CMTime(seconds: 5.0, preferredTimescale: 600)
-                videoPlayer.seek(to: targetTime, toleranceBefore: .zero, toleranceAfter: .zero) { _ in
-                    videoPlayer.play()
-                }
-            }
-
-              // Play the video in the needed direction
-          } else if (kStateStarted == state.name || kStateSaved == state.name) {
-              int currentFrame = videoPlayer.getCurrentFrame();
-              int destinationFrame = frameForDistance(distance);
-              if (videoPlayer.isPlaying() && !videoPlayer.isPaused()) {
-                  if (videoPlayer.getSpeed() == kForward) {
-                      if (currentFrame >= destinationFrame) {
-                          videoPlayer.setPaused(true);
-                      }
-                  } else if (videoPlayer.getSpeed() == kBack) {
-                      if (currentFrame <= destinationFrame) {
-                          videoPlayer.setPaused(true);
-                      }
-                  }
-              } else {
-                  if (currentFrame > destinationFrame) {
-                      videoPlayer.setSpeed(kBack);
-                      videoPlayer.setPaused(false);
-                  } else if (currentFrame < destinationFrame) {
-                      videoPlayer.setSpeed(kForward);
-                      videoPlayer.setPaused(false);
-                  }
-              }
-              videoPlayer.update();
-
-          } else {
-              throw("invalid state");
-          }
-  */
+    func updateVideo() {
+        
     }
     
     func calculateNormalizedDistance() {
@@ -193,7 +147,7 @@ class ViewController: NSViewController {
         }
         
         // Adjust rate
-        let newAuditoRate = mapValue(value: distance, inputMin: cfg.minDistance, inputMax: cfg.maxDistance, outputMin: cfg.heartbeatMaxRate, outputMax: cfg.heartbeatMinRate)
+        let newAuditoRate = mapValue(value: distance, inputMin: cfg.minDistance, inputMax: cfg.maxDistance, outputMin: cfg.finishingHeartBeatSpeed, outputMax: cfg.startingHeartBeatSpeed)
         if audioRate != newAuditoRate {
             heartbeatSound.setRate(newAuditoRate)
             log.info("Audio rate set to \(newAuditoRate)")

@@ -6,9 +6,8 @@
   "startingVolume": 0.5,
   "finishingVolume": 1.0,
   "waitingVolume": 0.1,
-  "heartbeatMinRate": 1.0,
-  "heartbeatMaxRate": 2.0,
-  "heartbeatStartRate": 1.0,
+  "startingHeartBeatSpeed": 1.0,
+  "finishingHeartBeatSpeed": 1.0,
   "fullScreen": false,
   "showSimulationSlider": true,
   "frameRate": 60.0
