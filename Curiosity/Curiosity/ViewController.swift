@@ -18,15 +18,16 @@ class ViewController: NSViewController {
     var state = GameState.waiting
     var log = Logger(subsystem: "com.example.Curiosity", category: "App")
     var distance: Float = 0
+    var normalizedDistance: Float = 0
     
     @IBOutlet weak var distanceSlider: NSSlider!
-    
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
         // Assume max distance before we start
         distance = cfg.maxDistance
+        normalizedDistance = normalizeDistance(value: distance)
 
         // Set background to black
         view.wantsLayer = true
@@ -55,14 +56,14 @@ class ViewController: NSViewController {
 
         // Initialize video player
         let videoURL = Bundle.main.url(forResource: "video_forward", withExtension: "mp4")!
-        let player = AVPlayer(url: videoURL)
-        player.actionAtItemEnd = .pause
+        let videoPlayer = AVPlayer(url: videoURL)
+        videoPlayer.actionAtItemEnd = .pause
 
         // Add video layer to screen
-        let layer = AVPlayerLayer(player: player)
+        let layer = AVPlayerLayer(player: videoPlayer)
         layer.frame = view.bounds
         layer.autoresizingMask = [.layerWidthSizable, .layerHeightSizable]
-        //view.layer?.addSublayer(layer)
+        view.layer?.addSublayer(layer)
         playerLayer = layer
 
         // Audio setup
@@ -85,7 +86,18 @@ class ViewController: NSViewController {
     
     func updateDistance() {
         // FIXME: read from serial if not in simulation mode
-        distance = cfg.maxDistance - distanceSlider.floatValue
+        let newDistance = cfg.maxDistance - distanceSlider.floatValue
+        let newNormalized = normalizeDistance(value: newDistance)
+        if distance != newDistance {
+            log.info("Distance: \(newDistance), normalized distance \(newNormalized)")
+        }
+        
+        distance = newDistance
+        normalizedDistance = newNormalized
+    }
+    
+    func normalizeDistance(value: Float) -> Float {
+        return max(cfg.minDistance, min(1, value / cfg.maxDistance))
     }
     
     func updateState() {
@@ -106,11 +118,78 @@ class ViewController: NSViewController {
     }
     
     func updateVideo() {
+        let videoPlayer = playerLayer?.player
+        let isVideoPlaying = videoPlayer?.rate != 0 && videoPlayer?.error == nil
+
+        /*
+        let duration = player.currentItem?.duration ?? .zero
+        let targetTime = CMTimeMultiplyByFloat64(duration, multiplier: Float64(normalized))
+        videoPlayer.seek(to: targetTime, toleranceBefore: .zero, toleranceAfter: .zero)
+         */
         
+        if state == .waiting || state == .statsKilled || state == .statsSaved {
+            if isVideoPlaying {
+                videoPlayer?.pause()
+            }
+        } else if state == .killed {
+            if !isVideoPlaying {
+                let fps: Float64 = 30
+                let frameNumber: Int64 = 150
+                let targetTime = CMTime(value: frameNumber, timescale: Int32(fps))
+                videoPlayer?.seek(to: targetTime, toleranceBefore: .zero, toleranceAfter: .zero)
+                videoPlayer?.play()
+            }
+        }
+/*
+        } else if state == .killed {
+            if !isVideoPlaying() {
+                // Jump to kill part
+                let targetTime = CMTime(seconds: 5.0, preferredTimescale: 600)
+                videoPlayer.seek(to: targetTime, toleranceBefore: .zero, toleranceAfter: .zero) { _ in
+                    videoPlayer.play()
+                }
+            }
+
+              // Play the video in the needed direction
+          } else if (kStateStarted == state.name || kStateSaved == state.name) {
+              int currentFrame = videoPlayer.getCurrentFrame();
+              int destinationFrame = frameForDistance(distance);
+              if (videoPlayer.isPlaying() && !videoPlayer.isPaused()) {
+                  if (videoPlayer.getSpeed() == kForward) {
+                      if (currentFrame >= destinationFrame) {
+                          videoPlayer.setPaused(true);
+                      }
+                  } else if (videoPlayer.getSpeed() == kBack) {
+                      if (currentFrame <= destinationFrame) {
+                          videoPlayer.setPaused(true);
+                      }
+                  }
+              } else {
+                  if (currentFrame > destinationFrame) {
+                      videoPlayer.setSpeed(kBack);
+                      videoPlayer.setPaused(false);
+                  } else if (currentFrame < destinationFrame) {
+                      videoPlayer.setSpeed(kForward);
+                      videoPlayer.setPaused(false);
+                  }
+              }
+              videoPlayer.update();
+
+          } else {
+              throw("invalid state");
+          }
+  */
     }
     
     func updateAudio() {
-        
+        // Audio parameters
+        let forward = 1 - normalizedDistance
+        let inverse = 1 - forward
+
+        let rate = cfg.heartbeatMinRate + inverse * (cfg.heartbeatMaxRate - cfg.heartbeatMinRate)
+        let volume = cfg.heartbeatMinVolume + inverse * (cfg.heartbeatMaxVolume - cfg.heartbeatMinVolume)
+        audioLoop.setVolume(Float(volume))
+        audioLoop.setRate(Float(rate))
     }
     
     func handleWaiting() {
@@ -150,26 +229,4 @@ class ViewController: NSViewController {
         
         log.info("Game started")
     }
-
-    /*
-        let normalized = max(cfg.minDistance, min(1, simulatedDistance / cfg.maxDistance))
-
-        if let player = playerLayer?.player {
-            let duration = player.currentItem?.duration ?? .zero
-            let targetTime = CMTimeMultiplyByFloat64(duration, multiplier: Float64(normalized))
-            player.seek(to: targetTime, toleranceBefore: .zero, toleranceAfter: .zero)
-        }
-
-        // Audio parameters
-        let forward = 1 - normalized
-        let inverse = 1 - forward
-
-        let rate = cfg.heartbeatMinRate + inverse * (cfg.heartbeatMaxRate - cfg.heartbeatMinRate)
-        let volume = cfg.heartbeatMinVolume + inverse * (cfg.heartbeatMaxVolume - cfg.heartbeatMinVolume)
-        audioLoop.setVolume(Float(volume))
-        audioLoop.setRate(Float(rate))
-
-        print("Distance: \(Int(simulatedDistance)) → position: \(normalized)")
-    }
-     */
 }
