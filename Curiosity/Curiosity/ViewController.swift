@@ -10,26 +10,37 @@ import AVFoundation
 import os
 
 class ViewController: NSViewController {
-    var playerLayer: AVPlayerLayer?
-    var videoPlayer: AVPlayer?
-    var killVideoPlayer: AVPlayer?
-    var heartbeatSound = AudioLoop()
+    // Configuration
     var cfg = ConfigurationManager.shared
+
+    // Logger
+    var log = Logger(subsystem: "com.example.Curiosity", category: "App")
+
+    // UI components
+    var videoPlayer: AVPlayer?
+    var videoPlayerLayer: AVPlayerLayer?
+    var killVideoPlayer: AVPlayer?
+    var killVideoPlayerLayer: AVPlayerLayer?
+    var heartbeatSound = AudioLoop()
     var updateTimer: Timer?
     var introImageView: NSImageView?
+    
+    // Game state
     var state = GameState.waiting
-    var log = Logger(subsystem: "com.example.Curiosity", category: "App")
     var distance: Double = 0
     var normalizedDistance: Double = 0
     var audioRate: Double = 0
     var audioVolume: Double = 0
     var saveActivatedAt: TimeInterval?
+    var totalSaves: Int = 0
+    var totalKills: Int = 0
     
+    // Connected UI components
     @IBOutlet weak var distanceSlider: NSSlider!
-    
     @IBOutlet weak var debugLabel: NSTextField!
-    
     @IBOutlet weak var videoContainerView: NSView!
+    @IBOutlet weak var numberLabel: NSTextField!
+    @IBOutlet weak var hintLabel: NSTextField!
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -40,10 +51,8 @@ class ViewController: NSViewController {
 
         // Set background to black
         view.wantsLayer = true
-        view.layer?.backgroundColor = NSColor.black.cgColor
         
         // Load intro image
-        /*
         let image = NSImage(named: "intro.jpg")!
         let imageView = NSImageView(image: image)
         imageView.frame = view.bounds
@@ -51,10 +60,8 @@ class ViewController: NSViewController {
         imageView.autoresizingMask = [.width, .height]
         view.addSubview(imageView, positioned: .below, relativeTo: nil)
         introImageView = imageView
-         */
+        introImageView?.isHidden = true
             
-
-        
         // Make the simulation slider more visible
         distanceSlider.wantsLayer = true
         distanceSlider.layer?.backgroundColor = NSColor.darkGray.cgColor
@@ -63,26 +70,38 @@ class ViewController: NSViewController {
         // Reset slider value just in case we changed it in XCode by accident
         distanceSlider.floatValue = 0
         
-        // Simulating with slider is not always enabled
+        // Show simulation slider, if needed
         distanceSlider.isHidden = !cfg.showSimulationSlider
+        
+        // Show debug label, if needed
+        debugLabel.isHidden = !cfg.debugOverlay
 
         // Initialize video player
         let videoURL = Bundle.main.url(forResource: "video_forward", withExtension: "mp4")!
         videoPlayer = AVPlayer(url: videoURL)
         videoPlayer?.actionAtItemEnd = .pause
 
+        // Add video layer to screen
+        videoPlayerLayer = AVPlayerLayer(player: videoPlayer)
+        videoPlayerLayer?.frame = view.bounds
+        videoPlayerLayer?.autoresizingMask = [.layerWidthSizable, .layerHeightSizable]
+        videoContainerView.wantsLayer = true
+        videoContainerView.layer?.addSublayer(videoPlayerLayer!)
+        videoPlayerLayer?.isHidden = true
+        
         // Initialize kill video player
         let killVideoURL = Bundle.main.url(forResource: "video_forward", withExtension: "mp4")!
         killVideoPlayer = AVPlayer(url: killVideoURL)
         killVideoPlayer?.actionAtItemEnd = .pause
-
-        // Add video layer to screen
-        let layer = AVPlayerLayer(player: videoPlayer)
-        layer.frame = view.bounds
-        layer.autoresizingMask = [.layerWidthSizable, .layerHeightSizable]
+        
+        // Add kill video layer to screen
+        killVideoPlayerLayer = AVPlayerLayer(player: killVideoPlayer)
+        killVideoPlayerLayer?.frame = view.bounds
+        killVideoPlayerLayer?.autoresizingMask = [.layerWidthSizable, .layerHeightSizable]
         videoContainerView.wantsLayer = true
-        videoContainerView.layer?.addSublayer(layer)
-        playerLayer = layer
+        videoContainerView.layer?.addSublayer(killVideoPlayerLayer!)
+        killVideoPlayerLayer?.isHidden = true
+        
         
         // Start update loop
         updateTimer = Timer.scheduledTimer(withTimeInterval: 1.0 / cfg.frameRate, repeats: true) { [weak self] _ in
@@ -126,8 +145,6 @@ class ViewController: NSViewController {
 
         // Update HUD
 
-        //ofSetColor(255);
-        
         let isPlaying = isVideoPlaying(player: videoPlayer)
         let currentFrame = videoPlayer?.currentTime().seconds
         let destinationFrame = frameForDistance()
@@ -148,98 +165,36 @@ class ViewController: NSViewController {
             """
         }
 
-        /*
-            if (configuration.DebugOverlay) {
-                int y = 20;
-                bool isPlaying = videoPlayer.isPlaying() && !videoPlayer.isPaused();
-                hudFont.drawString("distance=" + ofToString(distance), 10, y);
-                hudFont.drawString("frame=" + ofToString(videoPlayer.getCurrentFrame()) + "/" + ofToString(totalNumOfFrames), 200, y);
-                hudFont.drawString("dest.f=" + ofToString(frameForDistance(distance)), 400, y);
-                hudFont.drawString("max distance=" + ofToString(configuration.MaxDistance), 600, y);
-                hudFont.drawString("video=" + ofToString(isPlaying ? "yes" : "no"), 800, y);
+        // FIXME: no reason to draw these things each time, check first, if needed (except for numeric values, maybe)
+        
+        if state == .statsSaved {
+            setBackgroundToBlack()
+            videoContainerView.isHidden = true
+            numberLabel?.stringValue = String(totalSaves)
+            hintLabel?.stringValue = "Säästetud / Saved"
 
-                y = 40;
-                hudFont.drawString("restart=" + ofToString(restartCountdownSeconds), 10, y);
-                hudFont.drawString("save zone=" + ofToString(configuration.SaveZone), 200, y);
-                hudFont.drawString("death zone=" + ofToString(configuration.DeathZone), 400, y);
-                hudFont.drawString("may save in=" + ofToString(saveAllowedCountdownSeconds), 600, y);
-                hudFont.drawString("autosave=" + ofToString(autosaveCountdownSeconds), 800, y);
-            }
-         */
+        } else if state == .statsKilled {
+            setBackgroundToWhite()
+            videoContainerView.isHidden = true
+            numberLabel.stringValue = String(totalKills)
+            hintLabel.stringValue = "Hukkamisi / Kills"
 
-        /*
-            int margin(0);
-            if (configuration.DebugOverlay) {
-                margin = 50;
-            }
+        } else if state == .waiting {
+            setBackgroundToWhite()
+            videoContainerView.isHidden = true
+            introImageView?.isHidden = false
 
-            if (kStateStatsSaved == state.name) {
-                ofSetHexColor(kColorWhite);
-                ofRect(0, margin, ofGetWindowWidth(), ofGetWindowHeight() - margin);
-                ofFill();
-                ofSetHexColor(kColorBlack);
-                numberFont.drawString(ofToString(gameStats.TotalSaves()),
-                                      50,
-                                      300);
-                hintFont.drawString("Säästetud / Saved",
-                                    50,
-                                    ofGetWindowHeight() - 100);
+        } else if state == .started || state == .saved {
+            setBackgroundToWhite()
+            introImageView?.isHidden = true
+            videoContainerView.isHidden = false
+            videoPlayerLayer?.isHidden = false
 
-            } else if (kStateStatsKilled == state.name) {
-                ofSetHexColor(kColorWhite);
-                ofRect(0, margin, ofGetWindowWidth(), ofGetWindowHeight() - margin);
-                ofFill();
-                ofSetHexColor(kColorBlack);
-                numberFont.drawString(ofToString(gameStats.TotalKills()),
-                                      50,
-                                      300);
-                hintFont.drawString("Hukkamisi / Kills",
-                                    50,
-                                    ofGetWindowHeight() - 100);
-
-            } else if (kStateWaiting == state.name) {
-                ofSetHexColor(kColorWhite);
-                ofFill();
-                intro.draw(0, margin, ofGetWindowWidth(), ofGetWindowHeight() - margin);
-
-            } else if (kStateStarted == state.name || kStateSaved == state.name) {
-                ofSetHexColor(kColorWhite);
-                ofFill();
-                videoPlayer.draw(0, margin, ofGetWindowWidth(), ofGetWindowHeight() - margin);
-
-                // Draw overlay, for debugging
-                if (configuration.DebugOverlay) {
-                    ofSetHexColor(kColorBlack);
-                    numberFont.drawString(ofToString(distance),
-                                          100,
-                                          ofGetWindowHeight() / 2);
-                }
-
-            } else if (kStateKilled == state.name) {
-                ofSetHexColor(kColorWhite);
-                ofFill();
-                killVideoPlayer.draw(0, margin, ofGetWindowWidth(), ofGetWindowHeight() - margin);
-
-                // Draw overlay, for debugging
-                if (configuration.DebugOverlay) {
-                    ofSetHexColor(kColorBlack);
-                    numberFont.drawString(ofToString(distance),
-                                          100,
-                                          ofGetWindowHeight() / 2);
-                }
-                
-            } else {
-                throw("invalid state");
-            }
-            
-            if (configuration.DebugOverlay) {
-                ofSetHexColor(kColorBlack);
-                stateFont.drawString(state.name,
-                                     100,
-                                     ofGetWindowHeight() / 2 + 200);
-            }
+        } else if state == .killed {
+            setBackgroundToWhite()
+            videoContainerView.isHidden = false
+            killVideoPlayerLayer?.isHidden = false
         }
-         */
     }
     
     func updateDistance() {
@@ -328,7 +283,7 @@ class ViewController: NSViewController {
                 }
                  */
                 
-                log.info("Playing video")
+                log.info("Playing video, because state is started or saved, and video is not playing")
                 videoPlayer?.play()
             }
         }
@@ -446,5 +401,13 @@ class ViewController: NSViewController {
     override func viewWillDisappear() {
         super.viewWillDisappear()
         updateTimer?.invalidate()
+    }
+    
+    func setBackgroundToBlack() {
+        view.layer?.backgroundColor = NSColor.black.cgColor
+    }
+    
+    func setBackgroundToWhite() {
+        view.layer?.backgroundColor = NSColor.white.cgColor
     }
 }

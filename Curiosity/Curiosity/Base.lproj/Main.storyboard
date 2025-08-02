@@ -709,11 +709,25 @@
                         <rect key="frame" x="0.0" y="0.0" width="1126" height="700"/>
                         <autoresizingMask key="autoresizingMask"/>
                         <subviews>
-                            <customView fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="sNb-a7-8aa">
-                                <rect key="frame" x="0.0" y="221" width="838" height="479"/>
+                            <textField hidden="YES" focusRingType="none" horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="cA7-Xr-qpZ">
+                                <rect key="frame" x="503" y="447" width="120" height="233"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                            </customView>
-                            <textField focusRingType="none" horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="6nv-Co-HKt">
+                                <textFieldCell key="cell" lineBreakMode="clipping" alignment="center" title="0" id="Mfk-M0-ZM8">
+                                    <font key="font" size="200" name="HelveticaNeue"/>
+                                    <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
+                                    <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
+                                </textFieldCell>
+                            </textField>
+                            <textField hidden="YES" focusRingType="none" horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="EWa-LM-WW4">
+                                <rect key="frame" x="494" y="393" width="138" height="59"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                <textFieldCell key="cell" lineBreakMode="clipping" title="saved" id="S16-66-fA0">
+                                    <font key="font" size="50" name="HelveticaNeue"/>
+                                    <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
+                                    <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
+                                </textFieldCell>
+                            </textField>
+                            <textField hidden="YES" focusRingType="none" horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="6nv-Co-HKt">
                                 <rect key="frame" x="9" y="20" width="444" height="142"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                 <textFieldCell key="cell" lineBreakMode="clipping" title="Label" id="H9B-lR-uIY">
@@ -722,19 +736,25 @@
                                     <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                                 </textFieldCell>
                             </textField>
-                            <slider verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="6V8-J1-CXu">
+                            <slider hidden="YES" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="6V8-J1-CXu">
                                 <rect key="frame" x="9" y="175" width="444" height="28"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                 <sliderCell key="cell" continuous="YES" state="on" alignment="left" maxValue="400" doubleValue="190.703125" tickMarkPosition="above" sliderType="linear" id="thB-n5-edY">
                                     <font key="font" metaFont="cellTitle"/>
                                 </sliderCell>
                             </slider>
+                            <customView fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="kys-xP-5y0">
+                                <rect key="frame" x="0.0" y="215" width="1126" height="485"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                            </customView>
                         </subviews>
                     </view>
                     <connections>
                         <outlet property="debugLabel" destination="6nv-Co-HKt" id="lXk-Qd-mYr"/>
                         <outlet property="distanceSlider" destination="6V8-J1-CXu" id="hZc-Rt-yQX"/>
-                        <outlet property="videoContainerView" destination="sNb-a7-8aa" id="53Q-mT-jQg"/>
+                        <outlet property="hintLabel" destination="EWa-LM-WW4" id="mCI-T0-GA9"/>
+                        <outlet property="numberLabel" destination="cA7-Xr-qpZ" id="Jcs-my-GHX"/>
+                        <outlet property="videoContainerView" destination="kys-xP-5y0" id="PXV-KA-v2J"/>
                     </connections>
                 </viewController>
                 <customObject id="rPt-NT-nkU" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>
