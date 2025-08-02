@@ -29,7 +29,7 @@ class ViewController: NSViewController {
     var normalizedDistance: Double = 0
     var audioRate: Double = 0
     var audioVolume: Double = 0
-    var saveActivatedAt: TimeInterval?
+    var saveZoneActivatedAt: TimeInterval?
     var lastUserInputAt: TimeInterval?
     var finishedAt: TimeInterval?
     var totalSaves: Int = 0
@@ -116,7 +116,7 @@ class ViewController: NSViewController {
     }
     
     func isInSaveZone() -> Bool {
-        return distance >= cfg.maxDistance - cfg.saveZone && distance < cfg.maxDistance
+        return distance > cfg.maxDistance - cfg.saveZone && distance < cfg.maxDistance
     }
     
     func isInKillZone() -> Bool {
@@ -153,12 +153,12 @@ class ViewController: NSViewController {
                 killGame()
 
             // If save zone is active and user finds itself in it, then declare the game saved and finish it.
-           } else if saveActivatedAt != nil && distance > cfg.maxDistance - cfg.saveZone && saveActivatedAt! + cfg.saveActivateSeconds < now {
+           } else if saveZoneActivatedAt != nil && isInSaveZone() && saveZoneActivatedAt! + cfg.saveActivateSeconds < now {
                saveGame()
 
            // If user has moved out of save zone, and game is not finished yet, activate save zone
-           } else if saveActivatedAt == nil && distance < cfg.maxDistance - cfg.saveZone {
-               saveActivatedAt = now
+           } else if saveZoneActivatedAt == nil && !isInSaveZone() {
+               saveZoneActivatedAt = now
 
            // If we have no new input for N seconds, consider the game as saved, as it seems that the user has left the building
            } else if lastUserInputAt != nil && lastUserInputAt! < now - cfg.autoSaveSeconds {
@@ -237,6 +237,9 @@ class ViewController: NSViewController {
         distance = 0
         normalizedDistance = 0
         
+        saveZoneActivatedAt = nil
+        finishedAt = nil
+        
         state = .waiting
         log.info("Game waiting")
     }
@@ -257,46 +260,59 @@ class ViewController: NSViewController {
         }
         
         let now = Date().timeIntervalSince1970
-
-        var restartCountdownSeconds: Double = 0
-        if (state == .statsSaved || state == .statsKilled) && finishedAt != nil {
-            let beenDeadSeconds = now - finishedAt!
-            restartCountdownSeconds = cfg.restartIntervalSeconds - beenDeadSeconds
-        }
-
-        var autosaveCountdownSeconds: Double = 0
-        if state == .started && lastUserInputAt != nil {
-            let inactiveSeconds = now - lastUserInputAt!
-            autosaveCountdownSeconds = cfg.autoSaveSeconds - inactiveSeconds
-        }
-
-        var saveAllowedCountdownSeconds: Double = 0
-        if state == .started && saveActivatedAt != nil {
-            let saveActivedSeconds = now - saveActivatedAt!
-            saveAllowedCountdownSeconds = cfg.saveActivateSeconds - saveActivedSeconds;
-        }
-
-        // Update HUD
-
-        let isPlaying = isVideoPlaying(player: videoPlayer)
-        let currentFrame = calculateCurrentFrame()
-        let destinationFrame = frameForDistance()
-        let inKillZone = isInKillZone()
-        let inSaveZone = isInSaveZone()
         
         if cfg.debugOverlay {
+            var restartCountdownSeconds: Double = 0
+            if (state == .statsSaved || state == .statsKilled) && finishedAt != nil {
+                let beenDeadSeconds = now - finishedAt!
+                restartCountdownSeconds = round2(value: cfg.restartIntervalSeconds - beenDeadSeconds)
+            }
+
+            var autosaveCountdownSeconds: Double = 0
+            if state == .started && lastUserInputAt != nil {
+                let inactiveSeconds = now - lastUserInputAt!
+                autosaveCountdownSeconds = round2(value: cfg.autoSaveSeconds - inactiveSeconds)
+            }
+
+            var saveAllowedCountdownSeconds: Double = 0
+            if state == .started && saveZoneActivatedAt != nil {
+                let saveActivedSeconds = now - saveZoneActivatedAt!
+                saveAllowedCountdownSeconds = round2(value: cfg.saveActivateSeconds - saveActivedSeconds)
+            }
+
+            let isPlaying = isVideoPlaying(player: videoPlayer)
+            let currentFrame = calculateCurrentFrame()
+            let destinationFrame = frameForDistance()
+            let inKillZone = isInKillZone()
+            let inSaveZone = isInSaveZone()
+            
+            var formattedSaveZoneActivatedAt: String = ""
+            if let saveZoneActivatedAt = saveZoneActivatedAt {
+                formattedSaveZoneActivatedAt = DateFormatter.localizedString(from: Date(timeIntervalSince1970: saveZoneActivatedAt), dateStyle: .none, timeStyle: .short)
+            }
+            
+            var formattedFinishedAt: String = ""
+            if let finishedAt = finishedAt {
+                formattedFinishedAt = DateFormatter.localizedString(from: Date(timeIntervalSince1970: finishedAt), dateStyle: .none, timeStyle: .short)
+            }
+            
+            let roundAudioVolume = round2(value: audioVolume)
+            let roundDistance = round2(value: distance)
+        
             debugLabel?.stringValue = """
             state=\(state)
-            distance=\(distance)
-            in save zone=\(inSaveZone)
-            in kill zone=\(inKillZone)
-            current frame=\(currentFrame)/\(self.totalFrames)
-            dest.f=\(destinationFrame)
-            audio volume=\(audioVolume)
+            distance=\(roundDistance)
+            save zone=\(cfg.maxDistance) - \(cfg.maxDistance - cfg.saveZone), \(inSaveZone)
+            kill zone=\(cfg.minDistance + cfg.deathZone) - \(cfg.minDistance), \(inKillZone)
+            current frame=\(currentFrame) / \(self.totalFrames)
+            destination frame=\(destinationFrame)
+            audio volume=\(roundAudioVolume)
             is video playing=\(isPlaying)
-            restart countdown=\(restartCountdownSeconds) s
-            save countdown=\(saveAllowedCountdownSeconds) s
-            autosave countdown=\(autosaveCountdownSeconds) s
+            saveZoneActivatedAt=\(formattedSaveZoneActivatedAt) 
+            finishedAt=\(formattedFinishedAt)
+            restart in=\(restartCountdownSeconds)s
+            save allowed in=\(saveAllowedCountdownSeconds)s
+            autosave in=\(autosaveCountdownSeconds)s
             """
         }
 
