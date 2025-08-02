@@ -163,14 +163,38 @@ class ViewController: NSViewController {
             }
             
         } else if state == .saved {
+            let destinationFrame = frameForDistance()
+            let currentFrame = videoPlayer?.currentTime().seconds
+            if destinationFrame == currentFrame {
+                log.info("state is saved and we've reached destination frame, showing stats")
+                showStats()
+            }
             
         } else if state == .killed {
+            if !isVideoPlaying(player: killVideoPlayer) {
+                log.info("state is killed and kill video player has finished, showing stats")
+                showStats()
+            }
             
         }
         
         // Update media
         updateVideo()
         updateAudio()
+    }
+    
+    func showStats() {
+        // FIXME: disable serial
+        
+
+        if state == .killed {
+            state = .statsKilled
+        } else if state == .saved {
+            state = .statsSaved
+        }
+        
+        finishedAt = Date().timeIntervalSince1970
+        log.info("Showing stats")
     }
     
     func startGame() {
@@ -198,27 +222,22 @@ class ViewController: NSViewController {
     }
     
     func draw() {
-        // long now = ofGetElapsedTimeMillis();
+        let now = Date().timeIntervalSince1970
 
-        let restartCountdownSeconds: Double = 0
-        if state == .statsSaved || state == .statsKilled {
-            /*
-            int beenDeadSeconds = (now - state.finishedAt) / 1000;
-            restartCountdownSeconds = configuration.RestartIntervalSeconds - beenDeadSeconds;
-             */
+        var restartCountdownSeconds: Double = 0
+        if (state == .statsSaved || state == .statsKilled) && finishedAt != nil {
+            let beenDeadSeconds = now - finishedAt!
+            restartCountdownSeconds = cfg.restartIntervalSeconds - beenDeadSeconds
         }
 
-        let autosaveCountdownSeconds: Double = 0
-        if state == .started {
-            /*
-            int inactiveSeconds = (now - serialReader.LastUserInputAt()) / 1000;
-            autosaveCountdownSeconds = configuration.AutoSaveSeconds - inactiveSeconds;
-             */
+        var autosaveCountdownSeconds: Double = 0
+        if state == .started && lastUserInputAt != nil {
+            let inactiveSeconds = now - lastUserInputAt!
+            autosaveCountdownSeconds = cfg.autoSaveSeconds - inactiveSeconds
         }
 
         var saveAllowedCountdownSeconds: Double = 0
         if state == .started && saveActivatedAt != nil {
-            let now = Date().timeIntervalSince1970
             let saveActivedSeconds = now - saveActivatedAt!
             saveAllowedCountdownSeconds = cfg.saveActivateSeconds - saveActivedSeconds;
         }
