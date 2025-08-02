@@ -212,6 +212,12 @@ class ViewController: NSViewController {
     func startGame() {
         startHeartBeat()
         
+        setBackgroundToWhite()
+        
+        introImageView?.isHidden = true
+        
+        videoPlayerLayer?.isHidden = false
+        
         state = .started
         log.info("Game started")
     }
@@ -221,6 +227,11 @@ class ViewController: NSViewController {
         
         totalKills += 1
         
+        setBackgroundToWhite()
+        
+        numberLabel.stringValue = String(totalKills)
+        hintLabel.stringValue = "Hukkamisi / Kills"
+        
         state = .killed
         log.info("Game killed")
     }
@@ -228,20 +239,35 @@ class ViewController: NSViewController {
     func saveGame() {
         totalSaves += 1
         
+        setBackgroundToWhite()
+
+        numberLabel?.stringValue = String(totalSaves)
+        hintLabel?.stringValue = "Säästetud / Saved"
+        
+        introImageView?.isHidden = true
+        
+        videoPlayerLayer?.isHidden = false
+        
         state = .saved
         log.info("Game saved")
     }
     
     func waitGame() {
         // FIXME: reset serial
+        
         stopHeartBeat()
+        
+        introImageView?.isHidden = false
+        
+        videoPlayerLayer?.isHidden = true
         
         videoPlayer?.seek(to: .zero)
         
         distanceSlider.doubleValue = 0
-        
         distance = 0
         normalizedDistance = 0
+        
+        setBackgroundToWhite()
         
         saveZoneActivatedAt = nil
         finishedAt = nil
@@ -261,13 +287,9 @@ class ViewController: NSViewController {
     }
     
     func draw() {
-        if state == .loading {
-            return
-        }
-        
-        let now = Date().timeIntervalSince1970
-        
         if cfg.debugOverlay {
+            let now = Date().timeIntervalSince1970
+            
             var restartCountdownSeconds: Double = 0
             if (state == .statsSaved || state == .statsKilled) && finishedAt != nil {
                 let beenDeadSeconds = now - finishedAt!
@@ -321,36 +343,6 @@ class ViewController: NSViewController {
             save allowed in=\(saveAllowedCountdownSeconds)s
             autosave in=\(autosaveCountdownSeconds)s
             """
-        }
-
-        // FIXME: no reason to draw these things each time, check first, if needed (except for numeric values, maybe)
-        
-        if state == .statsSaved {
-            setBackgroundToBlack()
-            videoContainerView.isHidden = true
-            numberLabel?.stringValue = String(totalSaves)
-            hintLabel?.stringValue = "Säästetud / Saved"
-
-        } else if state == .statsKilled {
-            setBackgroundToWhite()
-            videoContainerView.isHidden = true
-            numberLabel.stringValue = String(totalKills)
-            hintLabel.stringValue = "Hukkamisi / Kills"
-
-        } else if state == .waiting {
-            setBackgroundToWhite()
-            videoContainerView.isHidden = true
-            introImageView?.isHidden = false
-
-        } else if state == .started || state == .saved {
-            setBackgroundToWhite()
-            introImageView?.isHidden = true
-            videoContainerView.isHidden = false
-            videoPlayerLayer?.isHidden = false
-
-        } else if state == .killed {
-            setBackgroundToWhite()
-            videoContainerView.isHidden = false
         }
     }
         
