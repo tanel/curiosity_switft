@@ -76,6 +76,9 @@ class ViewController: NSViewController {
         
         // Show debug label, if needed
         debugLabel.isHidden = !cfg.debugOverlay
+        if !debugLabel.isHidden {
+            view.addSubview(debugLabel, positioned: .above, relativeTo: nil)
+        }
 
         // Initialize video player
         let videoURL = Bundle.main.url(forResource: "video_forward", withExtension: "mp4")!
@@ -301,6 +304,7 @@ class ViewController: NSViewController {
         
             debugLabel?.stringValue = """
             state=\(state)
+            total kills=\(totalKills) saves=\(totalSaves)
             distance=\(roundDistance)
             save zone=\(cfg.maxDistance) - \(cfg.maxDistance - cfg.saveZone), \(inSaveZone)
             kill zone=\(cfg.minDistance + cfg.deathZone) - \(cfg.minDistance), \(inKillZone)
