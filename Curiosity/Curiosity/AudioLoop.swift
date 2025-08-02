@@ -13,7 +13,8 @@ class AudioLoop {
     private let player = AVAudioPlayerNode()
     private let timePitch = AVAudioUnitTimePitch()
     private var audioFile: AVAudioFile?
-    
+    private var shouldLoop = true
+
     init() {
         setupAudio()
     }
@@ -41,20 +42,24 @@ class AudioLoop {
 
     func start() {
         guard let audioFile else { return }
+        shouldLoop = true
         player.scheduleFile(audioFile, at: nil, completionHandler: loopAgain)
         player.play()
     }
 
     private func loopAgain() {
         DispatchQueue.main.async {
-            self.start()
+            if self.shouldLoop {
+                self.start()
+            }
         }
     }
 
     func stop() {
+        shouldLoop = false
         player.stop()
     }
-    
+
     func isPlaying() -> Bool {
         return player.isPlaying
     }
