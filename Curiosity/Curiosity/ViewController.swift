@@ -254,15 +254,15 @@ class ViewController: NSViewController {
         if cfg.debugOverlay {
             debugLabel?.stringValue = """
             distance=\(distance)
-            frame=\(currentFrame!)/\(totalFrames!)
+            current frame=\(currentFrame!)/\(totalFrames!)
             dest.f=\(destinationFrame)
-            max distance=\(cfg.maxDistance)
-            video=\(isPlaying)
-            restart=\(restartCountdownSeconds)
-            save zone=\(cfg.saveZone)
-            death zone=\(cfg.deathZone)
-            may save in=\(saveAllowedCountdownSeconds)
-            autosave=\(autosaveCountdownSeconds)
+            video playing=\(isPlaying)
+            restart in=\(restartCountdownSeconds) s
+            save zone=\(cfg.maxDistance) - \(cfg.saveZone)
+            death zone=\(cfg.deathZone) - \(cfg.minDistance)
+            may save in=\(saveAllowedCountdownSeconds) s
+            autosave in=\(autosaveCountdownSeconds) s
+            state=\(state)
             """
         }
 
@@ -334,10 +334,12 @@ class ViewController: NSViewController {
             if isVideoPlaying(player: videoPlayer) {
                 /*
                 if (videoPlayer.getSpeed() == kForward) {
-                    if (currentFrame >= destinationFrame) {
-                        log.info("Pausing video")
+                 */
+                    if currentFrame! >= destinationFrame {
+                        log.info("currentFrame! >= destinationFrame, pausing video")
                         videoPlayer?.pause()
                     }
+                /*
                 } else if (videoPlayer.getSpeed() == kBack) {
                     if (currentFrame <= destinationFrame) {
                         log.info("Pausing video")
@@ -346,15 +348,16 @@ class ViewController: NSViewController {
                 }
                  */
             } else {
-                /*
-                if currentFrame > destinationFrame {
-                    videoPlayer.setSpeed(kBack);
+                if currentFrame! >= destinationFrame {
+                    log.info("currentFrame! >= destinationFrame, playing video backwards")
+                    // FIXME: videoPlayer.setSpeed(kBack);
                     videoPlayer?.play()
-                } else if (currentFrame < destinationFrame) {
-                    videoPlayer.setSpeed(kForward);
+                // FIXME: we should either round or add for jitter, since the value is double
+                } else if currentFrame! < destinationFrame {
+                    log.info("currentFrame! < destinationFrame, playing video forward")
+                    // FIXME: videoPlayer.setSpeed(kForward);
                     videoPlayer?.play()
                 }
-                 */
                 
                 log.info("Playing video, because state is started or saved, and video is not playing")
                 videoPlayer?.play()
