@@ -6,6 +6,7 @@
 //
 
 enum GameState: String {
+    case loading = "loading"
     case waiting = "waiting"
     case started = "started"
     case saved = "saved"

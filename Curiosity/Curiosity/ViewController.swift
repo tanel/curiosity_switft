@@ -26,7 +26,7 @@ class ViewController: NSViewController {
     var introImageView: NSImageView?
     
     // Game state
-    var state = GameState.waiting
+    var state = GameState.loading
     var distance: Double = 0
     var normalizedDistance: Double = 0
     var audioRate: Double = 0
@@ -36,6 +36,7 @@ class ViewController: NSViewController {
     var finishedAt: TimeInterval?
     var totalSaves: Int = 0
     var totalKills: Int = 0
+    var totalFrames: Double = 0
     
     // Connected UI components
     @IBOutlet weak var distanceSlider: NSSlider!
@@ -83,6 +84,7 @@ class ViewController: NSViewController {
         videoPlayer = AVPlayer(url: videoURL)
         videoPlayer?.actionAtItemEnd = .pause
         videoPlayer?.volume = Float(cfg.finishingVolume)
+        videoPlayer?.currentItem?.addObserver(self, forKeyPath: "status", options: .new, context: nil)
 
         // Add video layer to screen
         videoPlayerLayer = AVPlayerLayer(player: videoPlayer)
@@ -105,7 +107,7 @@ class ViewController: NSViewController {
         videoContainerView.wantsLayer = true
         videoContainerView.layer?.addSublayer(killVideoPlayerLayer!)
         killVideoPlayerLayer?.isHidden = true
-        
+
         
         // Start update loop
         updateTimer = Timer.scheduledTimer(withTimeInterval: 1.0 / cfg.frameRate, repeats: true) { [weak self] _ in
@@ -114,7 +116,27 @@ class ViewController: NSViewController {
         }
     }
     
+    override func observeValue(forKeyPath keyPath: String?, of object: Any?,
+                               change: [NSKeyValueChangeKey : Any]?, context: UnsafeMutableRawPointer?) {
+        guard keyPath == "status", let item = object as? AVPlayerItem else { return }
+
+        switch item.status {
+        case .readyToPlay:
+            let totalSeconds = videoPlayer?.currentItem?.duration.seconds
+            self.totalFrames = round2(value: totalSeconds!)
+            restartGame()
+        case .failed:
+            print("Video failed to load: \(String(describing: item.error))")
+        default:
+            break
+        }
+    }
+    
     func update() {
+        if state == .loading {
+            return
+        }
+        
         let now = Date().timeIntervalSince1970
         
         // Update distance
@@ -165,7 +187,7 @@ class ViewController: NSViewController {
             
         } else if state == .saved {
             let destinationFrame = frameForDistance()
-            let currentFrame = videoPlayer?.currentTime().seconds
+            let currentFrame = calculateCurrentFrame()
             if destinationFrame == currentFrame {
                 log.info("state is saved and we've reached destination frame, showing stats")
                 showStats()
@@ -226,6 +248,10 @@ class ViewController: NSViewController {
     }
     
     func draw() {
+        if state == .loading {
+            return
+        }
+        
         let now = Date().timeIntervalSince1970
 
         var restartCountdownSeconds: Double = 0
@@ -249,23 +275,16 @@ class ViewController: NSViewController {
         // Update HUD
 
         let isPlaying = isVideoPlaying(player: videoPlayer)
-        let currentFrame = videoPlayer?.currentTime().seconds
+        let currentFrame = calculateCurrentFrame()
         let destinationFrame = frameForDistance()
-        let totalFrames = calculateTotalFrames(player: videoPlayer)
-        
-        let formattedDistance = String(format: "%.2f", distance)
-        let formattedCurrentFrame = String(format: "%.2f", currentFrame!)
-        let formattedTotalFrames = String(format: "%.2f", totalFrames!)
-        let formattedDestinationFrame = String(format: "%.2f", destinationFrame)
-        let formattedAudioVolume = String(format: "%.2f", audioVolume)
         
         if cfg.debugOverlay {
             debugLabel?.stringValue = """
             state=\(state)
-            distance=\(formattedDistance)
-            current frame=\(formattedCurrentFrame)/\(formattedTotalFrames)
-            dest.f=\(formattedDestinationFrame)
-            audio volume=\(formattedAudioVolume)
+            distance=\(distance)
+            current frame=\(currentFrame)/\(self.totalFrames)
+            dest.f=\(destinationFrame)
+            audio volume=\(audioVolume)
             is video playing=\(isPlaying)
             restart in=\(restartCountdownSeconds) s
             save in=\(saveAllowedCountdownSeconds) s
@@ -335,38 +354,36 @@ class ViewController: NSViewController {
 
         // Play the video in the needed direction
         if state == .started || state == .saved {
-            let currentFrame = videoPlayer?.currentTime().seconds
+            let currentFrame = calculateCurrentFrame()
             
             let destinationFrame = frameForDistance()
             if isVideoPlaying(player: videoPlayer) {
-                /*
-                if (videoPlayer.getSpeed() == kForward) {
-                 */
-                    if currentFrame! >= destinationFrame {
-                        log.info("currentFrame! >= destinationFrame, pausing video")
+                if videoPlayer?.rate == 1 {
+                    if currentFrame >= destinationFrame {
                         videoPlayer?.pause()
                     }
-                /*
-                } else if (videoPlayer.getSpeed() == kBack) {
-                    if (currentFrame <= destinationFrame) {
-                        log.info("Pausing video")
+                } else if videoPlayer?.rate == -1 {
+                    if currentFrame <= destinationFrame {
                         videoPlayer?.pause()
                     }
                 }
-                 */
             } else {
-                if currentFrame! >= destinationFrame {
-                    log.info("currentFrame! >= destinationFrame, playing video backwards")
-                    // FIXME: videoPlayer.setSpeed(kBack);
+                if currentFrame > destinationFrame {
                     videoPlayer?.playImmediately(atRate: -1)
-                // FIXME: we should either round or add for jitter, since the value is double
-                } else if currentFrame! < destinationFrame {
-                    log.info("currentFrame! < destinationFrame, playing video forward")
-                    // FIXME: videoPlayer.setSpeed(kForward);
+                } else if currentFrame < destinationFrame {
                     videoPlayer?.playImmediately(atRate: 1)
                 }
             }
         }
+    }
+    
+    func calculateCurrentFrame() -> Double {
+        let seconds = videoPlayer?.currentTime().seconds
+        return round2(value: seconds!)
+    }
+    
+    func round2(value: Double) -> Double {
+        return Double(round(100 * value) / 100)
     }
     
     // Frame for current distance
@@ -383,14 +400,8 @@ class ViewController: NSViewController {
             d = distance;
         }
         
-        let total = calculateTotalFrames(player: videoPlayer)!
-        
-        return mapValue(value: d, inputMin: cfg.maxDistance, inputMax: cfg.minDistance, outputMin: 0, outputMax: total)
-    }
-    
-    // FIXME: can be precalculated, after loading video
-    func calculateTotalFrames(player: AVPlayer?) -> Double? {
-        return player?.currentItem?.duration.seconds
+        let mapped = mapValue(value: d, inputMin: cfg.maxDistance, inputMax: cfg.minDistance, outputMin: 0, outputMax: totalFrames)
+        return round2(value: mapped)
     }
     
     func calculateNormalizedDistance() {
