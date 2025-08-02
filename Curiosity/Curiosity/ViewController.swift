@@ -95,6 +95,7 @@ class ViewController: NSViewController {
         videoPlayerLayer?.frame = view.bounds
         videoPlayerLayer?.autoresizingMask = [.layerWidthSizable, .layerHeightSizable]
         videoContainerView.wantsLayer = true
+        videoContainerView.autoresizingMask = [.width, .height]
         videoContainerView.layer?.addSublayer(videoPlayerLayer!)
         videoPlayerLayer?.isHidden = true
         

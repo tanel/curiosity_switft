@@ -709,16 +709,18 @@
                         <rect key="frame" x="0.0" y="0.0" width="1126" height="1003"/>
                         <autoresizingMask key="autoresizingMask"/>
                         <subviews>
-                            <textField hidden="YES" focusRingType="none" horizontalHuggingPriority="251" verticalHuggingPriority="750" ambiguous="YES" translatesAutoresizingMaskIntoConstraints="NO" id="cA7-Xr-qpZ">
+                            <textField hidden="YES" focusRingType="none" horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="cA7-Xr-qpZ">
                                 <rect key="frame" x="503" y="491" width="120" height="233"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                 <textFieldCell key="cell" lineBreakMode="clipping" alignment="center" title="0" id="Mfk-M0-ZM8">
                                     <font key="font" size="200" name="HelveticaNeue"/>
                                     <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
                                     <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                                 </textFieldCell>
                             </textField>
-                            <textField hidden="YES" focusRingType="none" horizontalHuggingPriority="251" verticalHuggingPriority="750" ambiguous="YES" translatesAutoresizingMaskIntoConstraints="NO" id="EWa-LM-WW4">
+                            <textField hidden="YES" focusRingType="none" horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="EWa-LM-WW4">
                                 <rect key="frame" x="494" y="437" width="138" height="59"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                 <textFieldCell key="cell" lineBreakMode="clipping" title="saved" id="S16-66-fA0">
                                     <font key="font" size="50" name="HelveticaNeue"/>
                                     <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
@@ -746,14 +748,6 @@
                                 <autoresizingMask key="autoresizingMask"/>
                             </customView>
                         </subviews>
-                        <constraints>
-                            <constraint firstItem="kys-xP-5y0" firstAttribute="centerX" secondItem="EWa-LM-WW4" secondAttribute="centerX" id="ALO-ld-Z9M"/>
-                            <constraint firstAttribute="bottom" secondItem="kys-xP-5y0" secondAttribute="bottom" id="Jr6-q7-1jx"/>
-                            <constraint firstItem="kys-xP-5y0" firstAttribute="centerX" secondItem="cA7-Xr-qpZ" secondAttribute="centerX" id="aO4-aw-edY"/>
-                            <constraint firstAttribute="trailing" secondItem="kys-xP-5y0" secondAttribute="trailing" id="cNr-Xf-Mym"/>
-                            <constraint firstItem="kys-xP-5y0" firstAttribute="leading" secondItem="m2S-Jp-Qdl" secondAttribute="leading" id="lZj-lu-MvZ"/>
-                            <constraint firstItem="kys-xP-5y0" firstAttribute="top" secondItem="m2S-Jp-Qdl" secondAttribute="top" id="vui-3d-V8s"/>
-                        </constraints>
                     </view>
                     <connections>
                         <outlet property="debugLabel" destination="6nv-Co-HKt" id="lXk-Qd-mYr"/>
