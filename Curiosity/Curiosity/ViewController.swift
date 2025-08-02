@@ -122,7 +122,6 @@ class ViewController: NSViewController {
         let newDistance = cfg.maxDistance - distanceSlider.doubleValue
         if distance != newDistance {
             calculateNormalizedDistance()
-            log.info("Distance: \(newDistance), normalized distance \(self.normalizedDistance)")
         }
         
         distance = newDistance
@@ -219,6 +218,9 @@ class ViewController: NSViewController {
     func restartGame() {
         // FIXME: reset serial
         videoPlayer?.seek(to: .zero)
+        distanceSlider.doubleValue = 0
+        distance = 0
+        normalizedDistance = 0
         state = .waiting
         log.info("Game restarted")
     }
@@ -251,18 +253,23 @@ class ViewController: NSViewController {
         let destinationFrame = frameForDistance()
         let totalFrames = calculateTotalFrames(player: videoPlayer)
         
+        let formattedDistance = String(format: "%.2f", distance)
+        let formattedCurrentFrame = String(format: "%.2f", currentFrame!)
+        let formattedTotalFrames = String(format: "%.2f", totalFrames!)
+        let formattedDestinationFrame = String(format: "%.2f", destinationFrame)
+        let formattedAudioVolume = String(format: "%.2f", audioVolume)
+        
         if cfg.debugOverlay {
             debugLabel?.stringValue = """
-            distance=\(distance)
-            current frame=\(currentFrame!)/\(totalFrames!)
-            dest.f=\(destinationFrame)
-            video playing=\(isPlaying)
-            restart in=\(restartCountdownSeconds) s
-            save zone=\(cfg.maxDistance) - \(cfg.saveZone)
-            death zone=\(cfg.deathZone) - \(cfg.minDistance)
-            may save in=\(saveAllowedCountdownSeconds) s
-            autosave in=\(autosaveCountdownSeconds) s
             state=\(state)
+            distance=\(formattedDistance)
+            current frame=\(formattedCurrentFrame)/\(formattedTotalFrames)
+            dest.f=\(formattedDestinationFrame)
+            audio volume=\(formattedAudioVolume)
+            is video playing=\(isPlaying)
+            restart in=\(restartCountdownSeconds) s
+            save in=\(saveAllowedCountdownSeconds) s
+            autosave in=\(autosaveCountdownSeconds) s
             """
         }
 
@@ -351,16 +358,13 @@ class ViewController: NSViewController {
                 if currentFrame! >= destinationFrame {
                     log.info("currentFrame! >= destinationFrame, playing video backwards")
                     // FIXME: videoPlayer.setSpeed(kBack);
-                    videoPlayer?.play()
+                    videoPlayer?.playImmediately(atRate: -1)
                 // FIXME: we should either round or add for jitter, since the value is double
                 } else if currentFrame! < destinationFrame {
                     log.info("currentFrame! < destinationFrame, playing video forward")
                     // FIXME: videoPlayer.setSpeed(kForward);
-                    videoPlayer?.play()
+                    videoPlayer?.playImmediately(atRate: 1)
                 }
-                
-                log.info("Playing video, because state is started or saved, and video is not playing")
-                videoPlayer?.play()
             }
         }
     }
@@ -394,25 +398,10 @@ class ViewController: NSViewController {
     }
     
     func updateAudio() {
-        if state == .statsSaved || state == .statsKilled || state == .killed {
-            if heartbeatSound.isPlaying() {
-                log.info( "Stopping heartbeat sound")
-                heartbeatSound.stop()
-            }
-            
-            return
-        }
-
-        if !heartbeatSound.isPlaying() {
-            log.info("Starting heartbeat sound")
-            heartbeatSound.start()
-        }
-        
         // Adjust rate
         let newAuditoRate = mapValue(value: distance, inputMin: cfg.minDistance, inputMax: cfg.maxDistance, outputMin: cfg.finishingHeartBeatSpeed, outputMax: cfg.startingHeartBeatSpeed)
         if audioRate != newAuditoRate {
             heartbeatSound.setRate(newAuditoRate)
-            log.info("Audio rate set to \(newAuditoRate)")
             audioRate = newAuditoRate
         }
         
@@ -424,8 +413,21 @@ class ViewController: NSViewController {
         
         if audioVolume != newAudioVolume {
             heartbeatSound.setVolume(newAudioVolume)
-            log.info("Audio volume set to \(newAudioVolume)")
             audioVolume = newAudioVolume
+        }
+
+        if state == .statsSaved || state == .statsKilled || state == .killed || state == .waiting {
+            if heartbeatSound.isPlaying() {
+                log.info( "Stopping heartbeat sound")
+                heartbeatSound.stop()
+            }
+            
+            return
+        }
+        
+        if !heartbeatSound.isPlaying() {
+            log.info("Starting heartbeat sound")
+            heartbeatSound.start()
         }
     }
     

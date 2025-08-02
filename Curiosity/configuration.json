@@ -11,8 +11,12 @@
   "fullScreen": false,
   "showSimulationSlider": true,
   "debugOverlay": true,
-  "frameRate": 60.0,
-  "saveActivateSeconds": 10,
-  "autoSaveSeconds": 60,
-  "restartIntervalSeconds": 30
+  "frameRate": 60,
+  "saveActivateSeconds": 5,
+  "autoSaveSeconds": 5,
+  "restartIntervalSeconds": 5,
+  "original_frameRate": 60.0,
+  "original_saveActivateSeconds": 10,
+  "original_autoSaveSeconds": 60,
+  "original_restartIntervalSeconds": 30
 }
