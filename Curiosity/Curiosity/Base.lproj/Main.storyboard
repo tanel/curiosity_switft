@@ -728,14 +728,14 @@
                                 </textFieldCell>
                             </textField>
                             <slider hidden="YES" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="6V8-J1-CXu">
-                                <rect key="frame" x="9" y="219" width="444" height="28"/>
+                                <rect key="frame" x="9" y="707" width="444" height="28"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                 <sliderCell key="cell" continuous="YES" state="on" alignment="left" maxValue="400" doubleValue="190.703125" tickMarkPosition="above" sliderType="linear" id="thB-n5-edY">
                                     <font key="font" metaFont="cellTitle"/>
                                 </sliderCell>
                             </slider>
                             <textField hidden="YES" focusRingType="none" horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="6nv-Co-HKt">
-                                <rect key="frame" x="9" y="274" width="776" height="459"/>
+                                <rect key="frame" x="9" y="406" width="776" height="285"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                 <textFieldCell key="cell" lineBreakMode="clipping" title="Label" id="H9B-lR-uIY">
                                     <font key="font" metaFont="system"/>

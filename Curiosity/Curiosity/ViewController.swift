@@ -73,6 +73,9 @@ class ViewController: NSViewController {
         
         // Show simulation slider, if needed
         distanceSlider.isHidden = !cfg.showSimulationSlider
+        if !distanceSlider.isHidden {
+            view.addSubview(distanceSlider, positioned: .above, relativeTo: nil)
+        }
         
         // Show debug label, if needed
         debugLabel.isHidden = !cfg.debugOverlay
