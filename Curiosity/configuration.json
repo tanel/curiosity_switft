@@ -13,4 +13,6 @@
   "debugOverlay": true,
   "frameRate": 60.0,
   "saveActivateSeconds": 10,
+  "autoSaveSeconds": 60,
+  "restartIntervalSeconds": 30
 }

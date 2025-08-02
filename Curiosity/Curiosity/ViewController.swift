@@ -32,6 +32,8 @@ class ViewController: NSViewController {
     var audioRate: Double = 0
     var audioVolume: Double = 0
     var saveActivatedAt: TimeInterval?
+    var lastUserInputAt: TimeInterval?
+    var finishedAt: TimeInterval?
     var totalSaves: Int = 0
     var totalKills: Int = 0
     
@@ -111,10 +113,88 @@ class ViewController: NSViewController {
     }
     
     func update() {
-        updateDistance()
-        updateState()
+        let now = Date().timeIntervalSince1970
+        
+        // Update distance
+        // FIXME: read from serial if not in simulation mode
+        let newDistance = cfg.maxDistance - distanceSlider.doubleValue
+        if distance != newDistance {
+            calculateNormalizedDistance()
+            log.info("Distance: \(newDistance), normalized distance \(self.normalizedDistance)")
+        }
+        
+        distance = newDistance
+        
+        // Update state
+        if state == .waiting {
+            // If user finds itself *in* the save zone, we start the game.
+            if distance < cfg.maxDistance && distance >= cfg.maxDistance - cfg.saveZone {
+                log.info("state is waiting and player is in the save zone, starting game")
+                startGame()
+            }
+            
+        } else if state == .started {
+            
+            // Determine if user is now in the death zone
+            if distance < cfg.minDistance + cfg.deathZone {
+                log.info("state is started and player is in the death zone, killing game")
+                killGame()
+
+            // If save zone is active and user finds itself in it, then declare the game saved and finish it.
+           } else if saveActivatedAt != nil && distance > cfg.maxDistance - cfg.saveZone && saveActivatedAt! + cfg.saveActivateSeconds < now {
+               log.info("state is started and player has been in save zone for \(self.cfg.saveActivateSeconds) seconds, saving game")
+               saveGame()
+
+           // If user has moved out of save zone, and game is not finished yet, activate save zone
+           } else if saveActivatedAt == nil && distance < cfg.maxDistance - cfg.saveZone {
+               log.info("state is started and player walked into save zone, saving game")
+               saveActivatedAt = now
+
+           // If we have no new input for N seconds, consider the game as saved, as it seems that the user has left the building
+           } else if lastUserInputAt != nil && lastUserInputAt! < now - cfg.autoSaveSeconds {
+               log.info("state is started but there is no user input for \(self.cfg.autoSaveSeconds), considering game as saved")
+               saveGame()
+           }
+            
+        } else if state == .statsKilled || state == .statsSaved {
+            if finishedAt != nil && finishedAt! < now - cfg.restartIntervalSeconds {
+                log.info("state is killed or saved, \(self.cfg.restartIntervalSeconds) seconds since finish, restarting")
+                restartGame()
+            }
+            
+        } else if state == .saved {
+            
+        } else if state == .killed {
+            
+        }
+        
+        // Update media
         updateVideo()
         updateAudio()
+    }
+    
+    func startGame() {
+        state = .started
+        log.info("Game started")
+    }
+    
+    func killGame() {
+        state = .killed
+        totalKills += 1
+        log.info("Game finished with kill")
+    }
+    
+    func saveGame() {
+        state = .saved
+        totalSaves += 1
+        log.info("Game finished with save")
+    }
+    
+    func restartGame() {
+        // FIXME: reset serial
+        videoPlayer?.seek(to: .zero)
+        state = .waiting
+        log.info("Game restarted")
     }
     
     func draw() {
@@ -196,35 +276,7 @@ class ViewController: NSViewController {
             killVideoPlayerLayer?.isHidden = false
         }
     }
-    
-    func updateDistance() {
-        // FIXME: read from serial if not in simulation mode
-        let newDistance = cfg.maxDistance - distanceSlider.doubleValue
-        if distance != newDistance {
-            calculateNormalizedDistance()
-            log.info("Distance: \(newDistance), normalized distance \(self.normalizedDistance)")
-        }
         
-        distance = newDistance
-    }
-
-    func updateState() {
-        switch state {
-        case .waiting:
-            handleWaiting()
-        case .started:
-            handleStarted()
-        case .saved:
-            handleSaved()
-        case .killed:
-            handleKilled()
-        case .statsSaved:
-            handleStatsSaved()
-        case .statsKilled:
-            handleStatsKilled()
-        }
-    }
-    
     /*
     let duration = player.currentItem?.duration ?? .zero
     let targetTime = CMTimeMultiplyByFloat64(duration, multiplier: Float64(normalized))
@@ -359,45 +411,6 @@ class ViewController: NSViewController {
         return outputMin + normalized * (outputMax - outputMin)
     }
 
-    
-    func handleWaiting() {
-        if isInSaveZone() {
-            startGame()
-        }
-    }
-    
-    func handleStarted() {
-        
-    }
-    
-    func handleSaved() {
-        
-    }
-    
-    func handleKilled() {
-        
-    }
-    
-    func handleStatsSaved() {
-        
-    }
-    
-    func handleStatsKilled() {
-        
-    }
-    
-    func isInSaveZone() -> Bool {
-        return distance < cfg.maxDistance && distance >= cfg.maxDistance - cfg.saveZone
-    }
-    
-    func startGame() {
-        state = .started
-        
-        // FIXME: serialReader.Enable();
-        
-        log.info("Game started")
-    }
-    
     override func viewWillDisappear() {
         super.viewWillDisappear()
         updateTimer?.invalidate()

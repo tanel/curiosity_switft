@@ -35,6 +35,8 @@ struct Configuration: Codable {
     
     // Timing
     var saveActivateSeconds: Double
+    var autoSaveSeconds: Double
+    var restartIntervalSeconds: Double
 }
 
 func loadConfiguration() -> Configuration {
