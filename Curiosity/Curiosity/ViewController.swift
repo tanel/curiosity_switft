@@ -181,13 +181,13 @@ class ViewController: NSViewController {
             let destinationFrame = frameForDistance()
             let currentFrame = calculateCurrentFrame()
             if destinationFrame == currentFrame {
-                showStats()
+                showStatsSaved()
             }
             
         } else if state == .killed {
             // if we're killed and video has finished, switch to showing stats
             if !isVideoPlaying(player: videoPlayer) {
-                showStats()
+                showStatsKilled()
             }
             
         }
@@ -197,14 +197,23 @@ class ViewController: NSViewController {
         updateAudio()
     }
     
-    func showStats() {
+    func showStatsKilled() {
         // FIXME: disable serial
 
-        if state == .killed {
-            state = .statsKilled
-        } else if state == .saved {
-            state = .statsSaved
-        }
+        state = .statsKilled
+        
+        setBackgroundToBlack()
+        
+        finishedAt = Date().timeIntervalSince1970
+        log.info("Showing stats killed")
+    }
+    
+    func showStatsSaved() {
+        // FIXME: disable serial
+
+        state = .statsSaved
+        
+        setBackgroundToBlack()
         
         finishedAt = Date().timeIntervalSince1970
         log.info("Showing stats")
@@ -449,10 +458,12 @@ class ViewController: NSViewController {
     }
     
     func setBackgroundToBlack() {
+        log.info("setting background to black")
         view.layer?.backgroundColor = NSColor.black.cgColor
     }
     
     func setBackgroundToWhite() {
+        log.info( "setting background to white")
         view.layer?.backgroundColor = NSColor.white.cgColor
     }
 }
