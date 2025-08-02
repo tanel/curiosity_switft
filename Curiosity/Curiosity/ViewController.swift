@@ -132,6 +132,14 @@ class ViewController: NSViewController {
         }
     }
     
+    func isInSaveZone() -> Bool {
+        return distance >= cfg.maxDistance - cfg.saveZone && distance < cfg.maxDistance
+    }
+    
+    func isInKillZone() -> Bool {
+        return distance < cfg.minDistance + cfg.deathZone
+    }
+    
     func update() {
         if state == .loading {
             return
@@ -151,37 +159,31 @@ class ViewController: NSViewController {
         // Update state
         if state == .waiting {
             // If user finds itself *in* the save zone, we start the game.
-            if distance < cfg.maxDistance && distance >= cfg.maxDistance - cfg.saveZone {
-                log.info("state is waiting and player is in the save zone, starting game")
+            if isInSaveZone() {
                 startGame()
             }
             
         } else if state == .started {
             
             // Determine if user is now in the death zone
-            if distance < cfg.minDistance + cfg.deathZone {
-                log.info("state is started and player is in the death zone, killing game")
+            if isInKillZone() {
                 killGame()
 
             // If save zone is active and user finds itself in it, then declare the game saved and finish it.
            } else if saveActivatedAt != nil && distance > cfg.maxDistance - cfg.saveZone && saveActivatedAt! + cfg.saveActivateSeconds < now {
-               log.info("state is started and player has been in save zone for \(self.cfg.saveActivateSeconds) seconds, saving game")
                saveGame()
 
            // If user has moved out of save zone, and game is not finished yet, activate save zone
            } else if saveActivatedAt == nil && distance < cfg.maxDistance - cfg.saveZone {
-               log.info("state is started and player walked into save zone, saving game")
                saveActivatedAt = now
 
            // If we have no new input for N seconds, consider the game as saved, as it seems that the user has left the building
            } else if lastUserInputAt != nil && lastUserInputAt! < now - cfg.autoSaveSeconds {
-               log.info("state is started but there is no user input for \(self.cfg.autoSaveSeconds), considering game as saved")
                saveGame()
            }
             
         } else if state == .statsKilled || state == .statsSaved {
             if finishedAt != nil && finishedAt! < now - cfg.restartIntervalSeconds {
-                log.info("state is killed or saved, \(self.cfg.restartIntervalSeconds) seconds since finish, restarting")
                 restartGame()
             }
             
@@ -189,13 +191,11 @@ class ViewController: NSViewController {
             let destinationFrame = frameForDistance()
             let currentFrame = calculateCurrentFrame()
             if destinationFrame == currentFrame {
-                log.info("state is saved and we've reached destination frame, showing stats")
                 showStats()
             }
             
         } else if state == .killed {
             if !isVideoPlaying(player: killVideoPlayer) {
-                log.info("state is killed and kill video player has finished, showing stats")
                 showStats()
             }
             
@@ -208,7 +208,6 @@ class ViewController: NSViewController {
     
     func showStats() {
         // FIXME: disable serial
-        
 
         if state == .killed {
             state = .statsKilled
@@ -277,18 +276,24 @@ class ViewController: NSViewController {
         let isPlaying = isVideoPlaying(player: videoPlayer)
         let currentFrame = calculateCurrentFrame()
         let destinationFrame = frameForDistance()
+        let inKillZone = isInKillZone()
+        let inSaveZone = isInSaveZone()
+        let isKillVideoPlaying = isVideoPlaying(player: killVideoPlayer)
         
         if cfg.debugOverlay {
             debugLabel?.stringValue = """
             state=\(state)
             distance=\(distance)
+            in save zone=\(inSaveZone)
+            in kill zone=\(inKillZone)
             current frame=\(currentFrame)/\(self.totalFrames)
             dest.f=\(destinationFrame)
             audio volume=\(audioVolume)
             is video playing=\(isPlaying)
-            restart in=\(restartCountdownSeconds) s
-            save in=\(saveAllowedCountdownSeconds) s
-            autosave in=\(autosaveCountdownSeconds) s
+            is kill video playing=\(isKillVideoPlaying)
+            restart countdown=\(restartCountdownSeconds) s
+            save countdown=\(saveAllowedCountdownSeconds) s
+            autosave countdown=\(autosaveCountdownSeconds) s
             """
         }
 
@@ -315,6 +320,7 @@ class ViewController: NSViewController {
             setBackgroundToWhite()
             introImageView?.isHidden = true
             videoContainerView.isHidden = false
+            killVideoPlayerLayer?.isHidden = true
             videoPlayerLayer?.isHidden = false
 
         } else if state == .killed {
@@ -324,16 +330,10 @@ class ViewController: NSViewController {
         }
     }
         
-    /*
-    let duration = player.currentItem?.duration ?? .zero
-    let targetTime = CMTimeMultiplyByFloat64(duration, multiplier: Float64(normalized))
-    videoPlayer.seek(to: targetTime, toleranceBefore: .zero, toleranceAfter: .zero)
-     */
-    
     func isVideoPlaying(player: AVPlayer?) -> Bool {
         return player?.rate != 0 && player?.error == nil
     }
-        
+    
     func updateVideo() {
         // stop video if it should not be playing
         if state == .waiting || state == .killed || state == .statsKilled || state == .statsSaved {
