@@ -19,8 +19,6 @@ class ViewController: NSViewController {
     // UI components
     var videoPlayer: AVPlayer?
     var videoPlayerLayer: AVPlayerLayer?
-    var killVideoPlayer: AVPlayer?
-    var killVideoPlayerLayer: AVPlayerLayer?
     var heartbeatSound = AudioLoop()
     var updateTimer: Timer?
     var introImageView: NSImageView?
@@ -94,21 +92,6 @@ class ViewController: NSViewController {
         videoContainerView.layer?.addSublayer(videoPlayerLayer!)
         videoPlayerLayer?.isHidden = true
         
-        // Initialize kill video player
-        let killVideoURL = Bundle.main.url(forResource: "video_forward", withExtension: "mp4")!
-        killVideoPlayer = AVPlayer(url: killVideoURL)
-        killVideoPlayer?.actionAtItemEnd = .pause
-        killVideoPlayer?.volume = Float(cfg.finishingVolume)
-        
-        // Add kill video layer to screen
-        killVideoPlayerLayer = AVPlayerLayer(player: killVideoPlayer)
-        killVideoPlayerLayer?.frame = view.bounds
-        killVideoPlayerLayer?.autoresizingMask = [.layerWidthSizable, .layerHeightSizable]
-        videoContainerView.wantsLayer = true
-        videoContainerView.layer?.addSublayer(killVideoPlayerLayer!)
-        killVideoPlayerLayer?.isHidden = true
-
-        
         // Start update loop
         updateTimer = Timer.scheduledTimer(withTimeInterval: 1.0 / cfg.frameRate, repeats: true) { [weak self] _ in
             self?.update()
@@ -124,7 +107,7 @@ class ViewController: NSViewController {
         case .readyToPlay:
             let totalSeconds = videoPlayer?.currentItem?.duration.seconds
             self.totalFrames = round2(value: totalSeconds!)
-            restartGame()
+            waitGame()
         case .failed:
             print("Video failed to load: \(String(describing: item.error))")
         default:
@@ -184,7 +167,7 @@ class ViewController: NSViewController {
             
         } else if state == .statsKilled || state == .statsSaved {
             if finishedAt != nil && finishedAt! < now - cfg.restartIntervalSeconds {
-                restartGame()
+                waitGame()
             }
             
         } else if state == .saved {
@@ -195,7 +178,8 @@ class ViewController: NSViewController {
             }
             
         } else if state == .killed {
-            if !isVideoPlaying(player: killVideoPlayer) {
+            // if we're killed and video has finished, switch to showing stats
+            if !isVideoPlaying(player: videoPlayer) {
                 showStats()
             }
             
@@ -220,30 +204,51 @@ class ViewController: NSViewController {
     }
     
     func startGame() {
+        startHeartBeat()
+        
         state = .started
         log.info("Game started")
     }
     
     func killGame() {
-        state = .killed
+        stopHeartBeat()
+        
         totalKills += 1
-        log.info("Game finished with kill")
+        
+        state = .killed
+        log.info("Game killed")
     }
     
     func saveGame() {
-        state = .saved
         totalSaves += 1
-        log.info("Game finished with save")
+        
+        state = .saved
+        log.info("Game saved")
     }
     
-    func restartGame() {
+    func waitGame() {
         // FIXME: reset serial
+        stopHeartBeat()
+        
         videoPlayer?.seek(to: .zero)
+        
         distanceSlider.doubleValue = 0
+        
         distance = 0
         normalizedDistance = 0
+        
         state = .waiting
-        log.info("Game restarted")
+        log.info("Game waiting")
+    }
+    
+    func startHeartBeat() {
+        log.info("starting heartbeat sound")
+        heartbeatSound.start()
+    }
+    
+    func stopHeartBeat() {
+        log.info("stopping heartbeat sound")
+        heartbeatSound.stop()
     }
     
     func draw() {
@@ -278,7 +283,6 @@ class ViewController: NSViewController {
         let destinationFrame = frameForDistance()
         let inKillZone = isInKillZone()
         let inSaveZone = isInSaveZone()
-        let isKillVideoPlaying = isVideoPlaying(player: killVideoPlayer)
         
         if cfg.debugOverlay {
             debugLabel?.stringValue = """
@@ -290,7 +294,6 @@ class ViewController: NSViewController {
             dest.f=\(destinationFrame)
             audio volume=\(audioVolume)
             is video playing=\(isPlaying)
-            is kill video playing=\(isKillVideoPlaying)
             restart countdown=\(restartCountdownSeconds) s
             save countdown=\(saveAllowedCountdownSeconds) s
             autosave countdown=\(autosaveCountdownSeconds) s
@@ -320,13 +323,11 @@ class ViewController: NSViewController {
             setBackgroundToWhite()
             introImageView?.isHidden = true
             videoContainerView.isHidden = false
-            killVideoPlayerLayer?.isHidden = true
             videoPlayerLayer?.isHidden = false
 
         } else if state == .killed {
             setBackgroundToWhite()
             videoContainerView.isHidden = false
-            killVideoPlayerLayer?.isHidden = false
         }
     }
         
@@ -336,17 +337,9 @@ class ViewController: NSViewController {
     
     func updateVideo() {
         // stop video if it should not be playing
-        if state == .waiting || state == .killed || state == .statsKilled || state == .statsSaved {
+        if state == .waiting || state == .statsKilled || state == .statsSaved {
             if isVideoPlaying(player: videoPlayer) {
-                log.info("Pausing video")
                 videoPlayer?.pause()
-            }
-            
-            if state == .killed {
-                if !isVideoPlaying(player:killVideoPlayer) {
-                    log.info("Playing kill video")
-                    killVideoPlayer?.play();
-                }
             }
             
             return
@@ -425,20 +418,6 @@ class ViewController: NSViewController {
         if audioVolume != newAudioVolume {
             heartbeatSound.setVolume(newAudioVolume)
             audioVolume = newAudioVolume
-        }
-
-        if state == .statsSaved || state == .statsKilled || state == .killed || state == .waiting {
-            if heartbeatSound.isPlaying() {
-                log.info( "Stopping heartbeat sound")
-                heartbeatSound.stop()
-            }
-            
-            return
-        }
-        
-        if !heartbeatSound.isPlaying() {
-            log.info("Starting heartbeat sound")
-            heartbeatSound.start()
         }
     }
     
