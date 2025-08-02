@@ -82,6 +82,7 @@ class ViewController: NSViewController {
         let videoURL = Bundle.main.url(forResource: "video_forward", withExtension: "mp4")!
         videoPlayer = AVPlayer(url: videoURL)
         videoPlayer?.actionAtItemEnd = .pause
+        videoPlayer?.volume = Float(cfg.finishingVolume)
 
         // Add video layer to screen
         videoPlayerLayer = AVPlayerLayer(player: videoPlayer)
@@ -95,6 +96,7 @@ class ViewController: NSViewController {
         let killVideoURL = Bundle.main.url(forResource: "video_forward", withExtension: "mp4")!
         killVideoPlayer = AVPlayer(url: killVideoURL)
         killVideoPlayer?.actionAtItemEnd = .pause
+        killVideoPlayer?.volume = Float(cfg.finishingVolume)
         
         // Add kill video layer to screen
         killVideoPlayerLayer = AVPlayerLayer(player: killVideoPlayer)
