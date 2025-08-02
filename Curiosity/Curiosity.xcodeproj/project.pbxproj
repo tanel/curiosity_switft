@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		7471018C2E3E80B7007166D3 /* README.txt in Resources */ = {isa = PBXBuildFile; fileRef = 7471018B2E3E80B2007166D3 /* README.txt */; };
 		747CF67F2E37F5F500E192D9 /* loop.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 747CF67E2E37F5F500E192D9 /* loop.mp3 */; };
 		747CF68B2E38923000E192D9 /* configuration.json in Resources */ = {isa = PBXBuildFile; fileRef = 747CF68A2E38923000E192D9 /* configuration.json */; };
 		74918BF62E37AA470037E87E /* video_forward.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = 74918BF52E37AA470037E87E /* video_forward.mp4 */; };
@@ -34,6 +35,7 @@
 		7447A6432E379F5A00043141 /* Curiosity.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Curiosity.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		7447A6542E379F5B00043141 /* CuriosityTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = CuriosityTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		7447A65E2E379F5B00043141 /* CuriosityUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = CuriosityUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		7471018B2E3E80B2007166D3 /* README.txt */ = {isa = PBXFileReference; explicitFileType = net.daringfireball.markdown; path = README.txt; sourceTree = "<group>"; };
 		747CF67E2E37F5F500E192D9 /* loop.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = loop.mp3; sourceTree = "<group>"; };
 		747CF68A2E38923000E192D9 /* configuration.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = configuration.json; sourceTree = "<group>"; };
 		74918BF52E37AA470037E87E /* video_forward.mp4 */ = {isa = PBXFileReference; lastKnownFileType = file; path = video_forward.mp4; sourceTree = "<group>"; };
@@ -86,6 +88,7 @@
 		7447A63A2E379F5A00043141 = {
 			isa = PBXGroup;
 			children = (
+				7471018B2E3E80B2007166D3 /* README.txt */,
 				7447A6452E379F5A00043141 /* Curiosity */,
 				7447A6572E379F5B00043141 /* CuriosityTests */,
 				7447A6612E379F5B00043141 /* CuriosityUITests */,
@@ -228,6 +231,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				747CF68B2E38923000E192D9 /* configuration.json in Resources */,
+				7471018C2E3E80B7007166D3 /* README.txt in Resources */,
 				74A9B5172E3BDD1B00EB8D37 /* intro.jpg in Resources */,
 				747CF67F2E37F5F500E192D9 /* loop.mp3 in Resources */,
 				74918BF62E37AA470037E87E /* video_forward.mp4 in Resources */,

@@ -114,7 +114,7 @@ class ViewController: NSViewController {
         case .readyToPlay:
             let totalSeconds = videoPlayer?.currentItem?.duration.seconds
             self.totalFrames = round2(value: totalSeconds!)
-            waitGame()
+            changeStateToWaiting()
         case .failed:
             print("Video failed to load: \(String(describing: item.error))")
         default:
@@ -148,20 +148,19 @@ class ViewController: NSViewController {
         
         // Update state
         if state == .waiting {
-            // If user finds itself *in* the save zone, we start the game.
+            // Walking into save zone will start the game.
             if isInSaveZone() {
-                startGame()
+                changeStateToStarted()
             }
             
         } else if state == .started {
-            
-            // Determine if user is now in the death zone
+            // Walking into kill zone will end the game with KILL.
             if isInKillZone() {
-                killGame()
+                changeStateToKilled()
 
-            // If save zone is active and user finds itself in it, then declare the game saved and finish it.
+            // Walking into save zone again, after if its been activated, will end the game with SAVE.
            } else if saveZoneActivatedAt != nil && isInSaveZone() && saveZoneActivatedAt! + cfg.saveActivateSeconds < now {
-               saveGame()
+               changeStateToSaved()
 
            // If user has moved out of save zone, and game is not finished yet, activate save zone
            } else if saveZoneActivatedAt == nil && !isInSaveZone() {
@@ -169,12 +168,12 @@ class ViewController: NSViewController {
 
            // If we have no new input for N seconds, consider the game as saved, as it seems that the user has left the building
            } else if lastUserInputAt != nil && lastUserInputAt! < now - cfg.autoSaveSeconds {
-               saveGame()
+               changeStateToSaved()
            }
             
         } else if state == .statsKilled || state == .statsSaved {
             if finishedAt != nil && finishedAt! < now - cfg.restartIntervalSeconds {
-                waitGame()
+                changeStateToWaiting()
             }
             
         } else if state == .saved {
@@ -219,7 +218,7 @@ class ViewController: NSViewController {
         log.info("Showing stats")
     }
     
-    func startGame() {
+    func changeStateToStarted() {
         startHeartBeat()
         
         setBackgroundToWhite()
@@ -232,7 +231,7 @@ class ViewController: NSViewController {
         log.info("Game started")
     }
     
-    func killGame() {
+    func changeStateToKilled() {
         stopHeartBeat()
         
         totalKills += 1
@@ -246,7 +245,7 @@ class ViewController: NSViewController {
         log.info("Game killed")
     }
     
-    func saveGame() {
+    func changeStateToSaved() {
         totalSaves += 1
         
         setBackgroundToWhite()
@@ -262,7 +261,7 @@ class ViewController: NSViewController {
         log.info("Game saved")
     }
     
-    func waitGame() {
+    func changeStateToWaiting() {
         // FIXME: reset serial
         
         stopHeartBeat()
