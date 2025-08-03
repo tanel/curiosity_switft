@@ -196,39 +196,55 @@ class ViewController: NSViewController {
         updateAudio()
     }
     
+    func showStatsSaved() {
+        // FIXME: disable serial
+
+        state = .statsSaved
+        
+        setBackgroundToWhite()
+        
+        videoPlayer?.pause()
+        videoPlayerLayer?.isHidden = true
+        
+        numberLabel.stringValue = String(totalSaves)
+        hintLabel.stringValue = "Säästetud / Saved"
+
+        numberLabel.isHidden = false
+        hintLabel.isHidden = false
+
+        finishedAt = Date().timeIntervalSince1970
+        log.info("Showing stats")
+    }
+    
     func showStatsKilled() {
         // FIXME: disable serial
 
         state = .statsKilled
         
         videoPlayer?.pause()
-        
-        setBackgroundToBlack()
+        videoPlayerLayer?.isHidden = true
+
+        setBackgroundToWhite()
+
+        numberLabel.stringValue = String(totalKills)
+        hintLabel.stringValue = "Hukkamisi / Kills"
+
+        numberLabel.isHidden = false
+        hintLabel.isHidden = false
         
         finishedAt = Date().timeIntervalSince1970
         log.info("Showing stats killed")
     }
-    
-    func showStatsSaved() {
-        // FIXME: disable serial
 
-        state = .statsSaved
-        
-        videoPlayer?.pause()
-        videoPlayerLayer?.isHidden = true
-        
-        setBackgroundToBlack()
-        
-        finishedAt = Date().timeIntervalSince1970
-        log.info("Showing stats")
-    }
-    
     func changeStateToStarted() {
         startHeartBeat()
         
         setBackgroundToWhite()
         
         introImageView?.isHidden = true
+        
+        numberLabel.isHidden = true
+        hintLabel.isHidden = true
         
         videoPlayerLayer?.isHidden = false
         
@@ -241,41 +257,31 @@ class ViewController: NSViewController {
         
         totalKills += 1
         
-        setBackgroundToWhite()
-        
-        numberLabel.stringValue = String(totalKills)
-        hintLabel.stringValue = "Hukkamisi / Kills"
-        
         state = .killed
         log.info("Game killed")
     }
     
     func changeStateToSaved() {
         totalSaves += 1
-        
-        setBackgroundToWhite()
 
-        numberLabel?.stringValue = String(totalSaves)
-        hintLabel?.stringValue = "Säästetud / Saved"
-        
-        introImageView?.isHidden = true
-        
-        videoPlayerLayer?.isHidden = false
-        
         state = .saved
+
         log.info("Game saved")
     }
     
     func changeStateToWaiting() {
         // FIXME: reset serial
         
-        stopHeartBeat()
-        
-        introImageView?.isHidden = false
-        
         videoPlayerLayer?.isHidden = true
         videoPlayer?.pause()
         videoPlayer?.seek(to: .zero)
+
+        stopHeartBeat()
+        
+        numberLabel.isHidden = true
+        hintLabel.isHidden = true
+
+        introImageView?.isHidden = false
         
         distanceSlider.doubleValue = 0
         distance = 0
