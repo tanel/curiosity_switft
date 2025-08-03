@@ -365,33 +365,33 @@ class ViewController: NSViewController {
     }
     
     func updateVideo() {
-        // stop video if it should not be playing
-        if state == .waiting || state == .statsKilled || state == .statsSaved {
+        if state != .started && state != .saved {
             return
         }
 
-        // Play the video in the needed direction
-        if state == .started || state == .saved {
-            let currentFrame = calculateCurrentFrame()
-            
-            let destinationFrame = frameForDistance()
-            if isVideoPlaying(player: videoPlayer) {
-                if videoPlayer?.rate == 1 {
-                    if currentFrame >= destinationFrame {
-                        videoPlayer?.pause()
-                    }
-                } else if videoPlayer?.rate == -1 {
-                    if currentFrame <= destinationFrame {
-                        videoPlayer?.pause()
-                    }
+        let currentFrame = calculateCurrentFrame()
+        let destinationFrame = frameForDistance()
+
+        // Pause video if needed
+        if isVideoPlaying(player: videoPlayer) {
+            if videoPlayer?.rate == 1 { // is playing forward
+                if currentFrame >= destinationFrame {
+                    videoPlayer?.pause()
                 }
-            } else {
-                if currentFrame > destinationFrame {
-                    videoPlayer?.playImmediately(atRate: -1)
-                } else if currentFrame < destinationFrame {
-                    videoPlayer?.playImmediately(atRate: 1)
+            } else if videoPlayer?.rate == -1 { // is playing backward
+                if currentFrame <= destinationFrame {
+                    videoPlayer?.pause()
                 }
             }
+            
+            return
+        }
+        
+        // Start video if needed
+        if currentFrame > destinationFrame {
+            videoPlayer?.playImmediately(atRate: -1) // play backward
+        } else if currentFrame < destinationFrame {
+            videoPlayer?.playImmediately(atRate: 1) // play forward
         }
     }
     
