@@ -26,6 +26,7 @@ class ViewController: NSViewController {
     // Pre-calculated values, based on video length
     var totalFrames: Double = 0
     var killFrame: Double = 0
+    var killVideoStartsAt: CMTime?
     
     // Active audio rate and volume
     var audioRate: Double = 0
@@ -130,7 +131,12 @@ class ViewController: NSViewController {
         switch item.status {
         case .readyToPlay:
             let totalSeconds = videoPlayer?.currentItem?.duration.seconds
+            
             self.totalFrames = round2(value: totalSeconds!)
+            
+            self.killFrame = round2(value: mapValue(value: cfg.deathZone, inputMin: cfg.minDistance, inputMax: cfg.maxDistance, outputMin: totalSeconds!, outputMax: 0))
+            self.killVideoStartsAt = CMTime(seconds: self.killFrame, preferredTimescale: 600)
+            
             changeStateToWaiting()
         case .failed:
             print("Video failed to load: \(String(describing: item.error))")
@@ -273,6 +279,8 @@ class ViewController: NSViewController {
         stopHeartBeat()
         
         totalKills += 1
+        
+        videoPlayer?.seek(to: self.killVideoStartsAt!, toleranceBefore: .zero, toleranceAfter: .zero)
         
         state = .killed
         log.info("Game killed")
