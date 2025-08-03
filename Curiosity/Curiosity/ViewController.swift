@@ -201,6 +201,8 @@ class ViewController: NSViewController {
 
         state = .statsKilled
         
+        videoPlayer?.pause()
+        
         setBackgroundToBlack()
         
         finishedAt = Date().timeIntervalSince1970
@@ -211,6 +213,9 @@ class ViewController: NSViewController {
         // FIXME: disable serial
 
         state = .statsSaved
+        
+        videoPlayer?.pause()
+        videoPlayerLayer?.isHidden = true
         
         setBackgroundToBlack()
         
@@ -269,7 +274,7 @@ class ViewController: NSViewController {
         introImageView?.isHidden = false
         
         videoPlayerLayer?.isHidden = true
-        
+        videoPlayer?.pause()
         videoPlayer?.seek(to: .zero)
         
         distanceSlider.doubleValue = 0
@@ -362,10 +367,6 @@ class ViewController: NSViewController {
     func updateVideo() {
         // stop video if it should not be playing
         if state == .waiting || state == .statsKilled || state == .statsSaved {
-            if isVideoPlaying(player: videoPlayer) {
-                videoPlayer?.pause()
-            }
-            
             return
         }
 
