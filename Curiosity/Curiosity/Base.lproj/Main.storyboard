@@ -709,24 +709,30 @@
                         <rect key="frame" x="0.0" y="0.0" width="1126" height="1003"/>
                         <autoresizingMask key="autoresizingMask"/>
                         <subviews>
-                            <textField hidden="YES" focusRingType="none" horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="cA7-Xr-qpZ">
-                                <rect key="frame" x="356" y="491" width="429" height="233"/>
-                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                                <textFieldCell key="cell" lineBreakMode="clipping" alignment="center" title="0" id="Mfk-M0-ZM8">
-                                    <font key="font" size="200" name="HelveticaNeue"/>
-                                    <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                                    <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
-                                </textFieldCell>
-                            </textField>
-                            <textField hidden="YES" focusRingType="none" horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="EWa-LM-WW4">
-                                <rect key="frame" x="356" y="437" width="429" height="59"/>
-                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                                <textFieldCell key="cell" lineBreakMode="clipping" alignment="center" title="saved" id="S16-66-fA0">
-                                    <font key="font" size="50" name="HelveticaNeue"/>
-                                    <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                                    <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
-                                </textFieldCell>
-                            </textField>
+                            <customView id="Dg3-OI-X0s">
+                                <rect key="frame" x="344" y="352" width="437" height="299"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxX="YES" flexibleMinY="YES" flexibleMaxY="YES"/>
+                                <subviews>
+                                    <textField hidden="YES" focusRingType="none" horizontalHuggingPriority="251" verticalHuggingPriority="750" id="cA7-Xr-qpZ">
+                                        <rect key="frame" x="-2" y="96" width="441" height="197"/>
+                                        <autoresizingMask key="autoresizingMask"/>
+                                        <textFieldCell key="cell" lineBreakMode="clipping" alignment="center" title="0" id="Mfk-M0-ZM8">
+                                            <font key="font" size="200" name="HelveticaNeue"/>
+                                            <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                            <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
+                                        </textFieldCell>
+                                    </textField>
+                                    <textField hidden="YES" focusRingType="none" horizontalHuggingPriority="251" verticalHuggingPriority="750" id="EWa-LM-WW4">
+                                        <rect key="frame" x="-2" y="0.0" width="441" height="59"/>
+                                        <autoresizingMask key="autoresizingMask"/>
+                                        <textFieldCell key="cell" lineBreakMode="clipping" alignment="center" title="saved" id="S16-66-fA0">
+                                            <font key="font" size="50" name="HelveticaNeue"/>
+                                            <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                            <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
+                                        </textFieldCell>
+                                    </textField>
+                                </subviews>
+                            </customView>
                             <slider hidden="YES" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="6V8-J1-CXu">
                                 <rect key="frame" x="9" y="966" width="444" height="28"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
@@ -754,6 +760,7 @@
                         <outlet property="distanceSlider" destination="6V8-J1-CXu" id="hZc-Rt-yQX"/>
                         <outlet property="hintLabel" destination="EWa-LM-WW4" id="mCI-T0-GA9"/>
                         <outlet property="numberLabel" destination="cA7-Xr-qpZ" id="Jcs-my-GHX"/>
+                        <outlet property="statsView" destination="Dg3-OI-X0s" id="WrM-Ro-Yo2"/>
                         <outlet property="videoContainerView" destination="kys-xP-5y0" id="PXV-KA-v2J"/>
                     </connections>
                 </viewController>

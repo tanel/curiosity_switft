@@ -57,6 +57,7 @@ class ViewController: NSViewController {
     @IBOutlet weak var numberLabel: NSTextField!
     @IBOutlet weak var hintLabel: NSTextField!
     
+    @IBOutlet weak var statsView: NSView!
     override func viewDidLoad() {
         super.viewDidLoad()
         
