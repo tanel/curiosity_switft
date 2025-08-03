@@ -23,18 +23,31 @@ class ViewController: NSViewController {
     var updateTimer: Timer?
     var introImageView: NSImageView?
     
-    // Game state
-    var state = GameState.loading
-    var distance: Double = 0
-    var normalizedDistance: Double = 0
+    // Pre-calculated values, based on video length
+    var totalFrames: Double = 0
+    var killFrame: Double = 0
+    
+    // Active audio rate and volume
     var audioRate: Double = 0
     var audioVolume: Double = 0
+    
+    // Game state
+    var state = GameState.loading
+    
+    // Active distance reading
+    var distance: Double = 0
+    
+    // Active distance reading mapped to 0-1 scale
+    var normalizedDistance: Double = 0
+    
+    // Timestamps related to game state
     var saveZoneActivatedAt: TimeInterval?
     var lastUserInputAt: TimeInterval?
     var finishedAt: TimeInterval?
+    
+    // Stats
     var totalSaves: Int = 0
     var totalKills: Int = 0
-    var totalFrames: Double = 0
     
     // Connected UI components
     @IBOutlet weak var distanceSlider: NSSlider!
@@ -50,7 +63,6 @@ class ViewController: NSViewController {
         distance = cfg.maxDistance
         calculateNormalizedDistance()
 
-        // Set background to black
         view.wantsLayer = true
         
         // Load intro image
@@ -62,25 +74,30 @@ class ViewController: NSViewController {
         view.addSubview(imageView, positioned: .below, relativeTo: nil)
         introImageView = imageView
         introImageView?.isHidden = true
+        
+        // Configure distance slider
+        if cfg.showSimulationSlider {
+            // Make the simulation slider more visible
+            distanceSlider.wantsLayer = true
+            distanceSlider.layer?.backgroundColor = NSColor.darkGray.cgColor
+            distanceSlider.layer?.cornerRadius = 4
             
-        // Make the simulation slider more visible
-        distanceSlider.wantsLayer = true
-        distanceSlider.layer?.backgroundColor = NSColor.darkGray.cgColor
-        distanceSlider.layer?.cornerRadius = 4
-        
-        // Reset slider value just in case we changed it in XCode by accident
-        distanceSlider.floatValue = 0
-        
-        // Show simulation slider, if needed
-        distanceSlider.isHidden = !cfg.showSimulationSlider
-        if !distanceSlider.isHidden {
+            // Reset slider value just in case we changed it in XCode by accident
+            distanceSlider.floatValue = 0
+            
+            // Show simulation slider, if needed
+            distanceSlider.isHidden = false
             view.addSubview(distanceSlider, positioned: .above, relativeTo: nil)
+        } else {
+            distanceSlider.isHidden = true
         }
         
         // Show debug label, if needed
-        debugLabel.isHidden = !cfg.debugOverlay
-        if !debugLabel.isHidden {
+        if cfg.debugOverlay {
+            debugLabel.isHidden = false
             view.addSubview(debugLabel, positioned: .above, relativeTo: nil)
+        } else {
+            debugLabel.isHidden = true
         }
 
         // Initialize video player
@@ -307,63 +324,67 @@ class ViewController: NSViewController {
     }
     
     func draw() {
-        if cfg.debugOverlay {
-            let now = Date().timeIntervalSince1970
-            
-            var restartCountdownSeconds: Double = 0
-            if (state == .statsSaved || state == .statsKilled) && finishedAt != nil {
-                let beenDeadSeconds = now - finishedAt!
-                restartCountdownSeconds = round2(value: cfg.restartIntervalSeconds - beenDeadSeconds)
-            }
-
-            var autosaveCountdownSeconds: Double = 0
-            if state == .started && lastUserInputAt != nil {
-                let inactiveSeconds = now - lastUserInputAt!
-                autosaveCountdownSeconds = round2(value: cfg.autoSaveSeconds - inactiveSeconds)
-            }
-
-            var saveAllowedCountdownSeconds: Double = 0
-            if state == .started && saveZoneActivatedAt != nil {
-                let saveActivedSeconds = now - saveZoneActivatedAt!
-                saveAllowedCountdownSeconds = round2(value: cfg.saveActivateSeconds - saveActivedSeconds)
-            }
-
-            let isPlaying = isVideoPlaying(player: videoPlayer)
-            let currentFrame = calculateCurrentFrame()
-            let destinationFrame = frameForDistance()
-            let inKillZone = isInKillZone()
-            let inSaveZone = isInSaveZone()
-            
-            var formattedSaveZoneActivatedAt: String = ""
-            if let saveZoneActivatedAt = saveZoneActivatedAt {
-                formattedSaveZoneActivatedAt = DateFormatter.localizedString(from: Date(timeIntervalSince1970: saveZoneActivatedAt), dateStyle: .none, timeStyle: .short)
-            }
-            
-            var formattedFinishedAt: String = ""
-            if let finishedAt = finishedAt {
-                formattedFinishedAt = DateFormatter.localizedString(from: Date(timeIntervalSince1970: finishedAt), dateStyle: .none, timeStyle: .short)
-            }
-            
-            let roundAudioVolume = round2(value: audioVolume)
-            let roundDistance = round2(value: distance)
-        
-            debugLabel?.stringValue = """
-            state=\(state)
-            total kills=\(totalKills) saves=\(totalSaves)
-            distance=\(roundDistance)
-            save zone=\(cfg.maxDistance) - \(cfg.maxDistance - cfg.saveZone), \(inSaveZone)
-            kill zone=\(cfg.minDistance + cfg.deathZone) - \(cfg.minDistance), \(inKillZone)
-            current frame=\(currentFrame) / \(self.totalFrames)
-            destination frame=\(destinationFrame)
-            audio volume=\(roundAudioVolume)
-            is video playing=\(isPlaying)
-            saveZoneActivatedAt=\(formattedSaveZoneActivatedAt) 
-            finishedAt=\(formattedFinishedAt)
-            restart in=\(restartCountdownSeconds)s
-            save allowed in=\(saveAllowedCountdownSeconds)s
-            autosave in=\(autosaveCountdownSeconds)s
-            """
+        if !cfg.debugOverlay {
+            return
         }
+
+        let now = Date().timeIntervalSince1970
+            
+        var restartCountdownSeconds: Double = 0
+        if (state == .statsSaved || state == .statsKilled) && finishedAt != nil {
+            let beenDeadSeconds = now - finishedAt!
+            restartCountdownSeconds = round2(value: cfg.restartIntervalSeconds - beenDeadSeconds)
+        }
+
+        var autosaveCountdownSeconds: Double = 0
+        if state == .started && lastUserInputAt != nil {
+            let inactiveSeconds = now - lastUserInputAt!
+            autosaveCountdownSeconds = round2(value: cfg.autoSaveSeconds - inactiveSeconds)
+        }
+
+        var saveAllowedCountdownSeconds: Double = 0
+        if state == .started && saveZoneActivatedAt != nil {
+            let saveActivedSeconds = now - saveZoneActivatedAt!
+            saveAllowedCountdownSeconds = round2(value: cfg.saveActivateSeconds - saveActivedSeconds)
+        }
+
+        let isPlaying = isVideoPlaying(player: videoPlayer)
+        let currentFrame = calculateCurrentFrame()
+        let destinationFrame = frameForDistance()
+        let inKillZone = isInKillZone()
+        let inSaveZone = isInSaveZone()
+        
+        var formattedSaveZoneActivatedAt: String = ""
+        if let saveZoneActivatedAt = saveZoneActivatedAt {
+            formattedSaveZoneActivatedAt = DateFormatter.localizedString(from: Date(timeIntervalSince1970: saveZoneActivatedAt), dateStyle: .none, timeStyle: .short)
+        }
+        
+        var formattedFinishedAt: String = ""
+        if let finishedAt = finishedAt {
+            formattedFinishedAt = DateFormatter.localizedString(from: Date(timeIntervalSince1970: finishedAt), dateStyle: .none, timeStyle: .short)
+        }
+        
+        let roundAudioVolume = round2(value: audioVolume)
+        let roundDistance = round2(value: distance)
+    
+        debugLabel?.stringValue = """
+        state=\(state)
+        total kills=\(totalKills) saves=\(totalSaves)
+        distance=\(roundDistance)
+        save zone=\(cfg.maxDistance) - \(cfg.maxDistance - cfg.saveZone), \(inSaveZone)
+        kill zone=\(cfg.minDistance + cfg.deathZone) - \(cfg.minDistance), \(inKillZone)
+        current frame=\(currentFrame)
+        destination frame=\(destinationFrame)
+        total frames=\(self.totalFrames)
+        kill frame=\(self.killFrame)
+        audio volume=\(roundAudioVolume)
+        is video playing=\(isPlaying)
+        saveZoneActivatedAt=\(formattedSaveZoneActivatedAt) 
+        finishedAt=\(formattedFinishedAt)
+        restart in=\(restartCountdownSeconds)s
+        save allowed in=\(saveAllowedCountdownSeconds)s
+        autosave in=\(autosaveCountdownSeconds)s
+        """
     }
         
     func isVideoPlaying(player: AVPlayer?) -> Bool {
