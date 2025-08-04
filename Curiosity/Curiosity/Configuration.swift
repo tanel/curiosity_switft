@@ -37,6 +37,9 @@ struct Configuration: Codable {
     var saveActivateSeconds: Double
     var autoSaveSeconds: Double
     var restartIntervalSeconds: Double
+    
+    // Serial port
+    var portPath: String
 }
 
 func loadConfiguration() -> Configuration {

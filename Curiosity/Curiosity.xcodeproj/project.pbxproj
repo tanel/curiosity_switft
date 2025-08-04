@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		741356342E41391100376633 /* ORSSerial in Frameworks */ = {isa = PBXBuildFile; productRef = 741356332E41391100376633 /* ORSSerial */; };
 		747CF67F2E37F5F500E192D9 /* loop.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 747CF67E2E37F5F500E192D9 /* loop.mp3 */; };
 		747CF68B2E38923000E192D9 /* configuration.json in Resources */ = {isa = PBXBuildFile; fileRef = 747CF68A2E38923000E192D9 /* configuration.json */; };
 		74918BF62E37AA470037E87E /* video_forward.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = 74918BF52E37AA470037E87E /* video_forward.mp4 */; };
@@ -63,6 +64,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				741356342E41391100376633 /* ORSSerial in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -127,6 +129,7 @@
 			);
 			name = Curiosity;
 			packageProductDependencies = (
+				741356332E41391100376633 /* ORSSerial */,
 			);
 			productName = Curiosity;
 			productReference = 7447A6432E379F5A00043141 /* Curiosity.app */;
@@ -210,6 +213,9 @@
 			);
 			mainGroup = 7447A63A2E379F5A00043141;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				741356322E41391100376633 /* XCRemoteSwiftPackageReference "ORSSerialPort" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 7447A6442E379F5A00043141 /* Products */;
 			projectDirPath = "";
@@ -562,6 +568,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		741356322E41391100376633 /* XCRemoteSwiftPackageReference "ORSSerialPort" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/armadsen/ORSSerialPort";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.1.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		741356332E41391100376633 /* ORSSerial */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 741356322E41391100376633 /* XCRemoteSwiftPackageReference "ORSSerialPort" */;
+			productName = ORSSerial;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 7447A63B2E379F5A00043141 /* Project object */;
 }

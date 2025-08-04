@@ -8,6 +8,7 @@
 import Cocoa
 import AVFoundation
 import os
+import ORSSerial
 
 class ViewController: NSViewController {
     // Configuration
@@ -37,6 +38,7 @@ class ViewController: NSViewController {
     
     // Active distance reading
     var distance: Double = 0
+    var distanceSource: String = ""
     
     // Active distance reading mapped to 0-1 scale
     var normalizedDistance: Double = 0
@@ -49,6 +51,10 @@ class ViewController: NSViewController {
     // Stats
     var totalSaves: Int = 0
     var totalKills: Int = 0
+    
+    // Serial
+    var serialReader = SerialReader()
+    var availablePorts: String = ""
     
     // Connected UI components
     @IBOutlet weak var distanceSlider: NSSlider!
@@ -118,6 +124,12 @@ class ViewController: NSViewController {
         videoContainerView.layer?.addSublayer(videoPlayerLayer!)
         videoPlayerLayer?.isHidden = true
         
+        // Get available serial ports
+        availablePorts = ORSSerialPortManager.shared().availablePorts.map { $0.path }.joined(separator: ", ")
+        log.info("available ports: \(self.availablePorts)")
+        
+        serialReader.start(path: cfg.portPath)
+        
         // Start update loop
         updateTimer = Timer.scheduledTimer(withTimeInterval: 1.0 / cfg.frameRate, repeats: true) { [weak self] _ in
             self?.update()
@@ -162,8 +174,15 @@ class ViewController: NSViewController {
         let now = Date().timeIntervalSince1970
         
         // Update distance
-        // FIXME: read from serial if not in simulation mode
-        let newDistance = cfg.maxDistance - distanceSlider.doubleValue
+        var newDistance: Double = 0
+        if !serialReader.isConnected {
+            newDistance = cfg.maxDistance - distanceSlider.doubleValue
+            distanceSource = "slider"
+        } else {
+            newDistance = Double(serialReader.latestValue)
+            distanceSource = "serialPort"
+        }
+        
         if distance != newDistance {
             calculateNormalizedDistance()
         }
@@ -375,17 +394,18 @@ class ViewController: NSViewController {
         
         let roundAudioVolume = round2(value: audioVolume)
         let roundDistance = round2(value: distance)
-    
+        
         debugLabel?.stringValue = """
         state=\(state)
         total kills=\(totalKills) saves=\(totalSaves)
         distance=\(roundDistance)
+        distance source=\(distanceSource)
         save zone=\(cfg.maxDistance) - \(cfg.maxDistance - cfg.saveZone), \(inSaveZone)
         kill zone=\(cfg.minDistance + cfg.deathZone) - \(cfg.minDistance), \(inKillZone)
         current frame=\(currentFrame)
         destination frame=\(destinationFrame)
-        total frames=\(self.totalFrames)
-        kill frame=\(self.killFrame)
+        total frames=\(totalFrames)
+        kill frame=\(killFrame)
         audio volume=\(roundAudioVolume)
         is video playing=\(isPlaying)
         saveZoneActivatedAt=\(formattedSaveZoneActivatedAt) 
@@ -393,6 +413,9 @@ class ViewController: NSViewController {
         restart in=\(restartCountdownSeconds)s
         save allowed in=\(saveAllowedCountdownSeconds)s
         autosave in=\(autosaveCountdownSeconds)s
+        available ports: \(availablePorts)
+        port path: \(cfg.portPath)
+        port state: \(serialReader.state)
         """
     }
         
