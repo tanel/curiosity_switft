@@ -40,6 +40,7 @@ struct Configuration: Codable {
     
     // Serial port
     var portPath: String
+    var useMovingAverage: Bool
 }
 
 func loadConfiguration() -> Configuration {

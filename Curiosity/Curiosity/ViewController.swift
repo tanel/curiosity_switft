@@ -128,7 +128,7 @@ class ViewController: NSViewController {
         availablePorts = ORSSerialPortManager.shared().availablePorts.map { $0.path }.joined(separator: ", ")
         log.info("available ports: \(self.availablePorts)")
         
-        serialReader.start(path: cfg.portPath)
+        serialReader.start(path: cfg.portPath, useMovingAverage: cfg.useMovingAverage)
         
         // Start update loop
         updateTimer = Timer.scheduledTimer(withTimeInterval: 1.0 / cfg.frameRate, repeats: true) { [weak self] _ in
@@ -416,6 +416,7 @@ class ViewController: NSViewController {
         available ports: \(availablePorts)
         port path: \(cfg.portPath)
         port state: \(serialReader.state)
+        use moving average: \(cfg.useMovingAverage)
         """
     }
         

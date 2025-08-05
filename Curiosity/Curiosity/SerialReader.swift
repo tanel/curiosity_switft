@@ -13,8 +13,11 @@ class SerialReader: NSObject, ORSSerialPortDelegate {
     var lastReceivedLine: String?
     var latestValue: Int = 0
     var state: String = "Stopped"
+    
+    private var useMovingAverageFilter: Bool = false
+    private var movingAverage = MovingAverageFilter(size: 10)
 
-    func start(path: String, baudRate: Int = 9600) {
+    func start(path: String, useMovingAverage: Bool, baudRate: Int = 9600) {
         guard let port = ORSSerialPort(path: path) else {
             print("Invalid port path")
             return
@@ -23,6 +26,7 @@ class SerialReader: NSObject, ORSSerialPortDelegate {
         port.delegate = self
         port.open()
         serialPort = port
+        useMovingAverageFilter = useMovingAverage
     }
 
     func stop() {
@@ -38,10 +42,13 @@ class SerialReader: NSObject, ORSSerialPortDelegate {
     func serialPort(_ serialPort: ORSSerialPort, didReceive data: Data) {
         if let line = String(data: data, encoding: .utf8)?
             .trimmingCharacters(in: .whitespacesAndNewlines),
-           let value = Int(line) {
-            latestValue = value
+            let value = Int(line) {
+
+            let finalValue = useMovingAverageFilter ? movingAverage.add(value) : value
+
+            latestValue = finalValue
             lastReceivedLine = line
-            print("Received distance: \(value)")
+            print("Raw: \(value) → Final: \(finalValue)")
         }
     }
 

@@ -16,6 +16,7 @@
   "autoSaveSeconds": 10,
   "restartIntervalSeconds": 10,
   "portPath": "/dev/cu.usbmodem83101",
+  "useMovingAverage": true,
   "original_frameRate": 60.0,
   "original_saveActivateSeconds": 10,
   "original_autoSaveSeconds": 60,
