@@ -19,9 +19,12 @@ class SerialReader: NSObject, ORSSerialPortDelegate {
     private var lastCountResetTime = Date()
     private(set) var readingsPerSecond = 0
 
-    
+    // Moving average filter (optional)
     private var useMovingAverageFilter: Bool = false
     private var movingAverage = MovingAverageFilter(size: 10)
+    
+    // Callback on sensor read
+    var onDistanceUpdate: ((Int) -> Void)?
 
     func start(path: String, useMovingAverage: Bool, baudRate: Int = 9600) {
         guard let port = ORSSerialPort(path: path) else {
@@ -62,8 +65,11 @@ class SerialReader: NSObject, ORSSerialPortDelegate {
 
             latestValue = finalValue
             lastReceivedLine = line
+
+            onDistanceUpdate?(finalValue)
         }
     }
+
 
     func serialPortWasRemovedFromSystem(_ serialPort: ORSSerialPort) {
         print("Port was removed")

@@ -136,7 +136,14 @@ class ViewController: NSViewController {
         serialReader.start(path: cfg.portPath, useMovingAverage: cfg.useMovingAverage)
         
         // Start update loop
+        /*
         updateTimer = Timer.scheduledTimer(withTimeInterval: 1.0 / cfg.frameRate, repeats: true) { [weak self] _ in
+            self?.update()
+            self?.draw()
+        }
+         */
+        
+        serialReader.onDistanceUpdate = { [weak self] distance in
             self?.update()
             self?.draw()
         }
