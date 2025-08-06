@@ -11,7 +11,7 @@
   "fullScreen": false,
   "showSimulationSlider": true,
   "debugOverlay": true,
-  "frameRate": 60,
+  "frameRate": 10,
   "saveActivateSeconds": 10,
   "autoSaveSeconds": 10,
   "restartIntervalSeconds": 10,

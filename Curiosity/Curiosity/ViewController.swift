@@ -136,17 +136,17 @@ class ViewController: NSViewController {
         serialReader.start(path: cfg.portPath, useMovingAverage: cfg.useMovingAverage)
         
         // Start update loop
-        /*
         updateTimer = Timer.scheduledTimer(withTimeInterval: 1.0 / cfg.frameRate, repeats: true) { [weak self] _ in
-            self?.update()
-            self?.draw()
+            self?.react()
+        }
+        
+        react()
+
+        /*
+        serialReader.onDistanceUpdate = { [weak self] distance in
+            self?.react()
         }
          */
-        
-        serialReader.onDistanceUpdate = { [weak self] distance in
-            self?.update()
-            self?.draw()
-        }
     }
     
     override func observeValue(forKeyPath keyPath: String?, of object: Any?,
@@ -163,11 +163,18 @@ class ViewController: NSViewController {
             self.killVideoStartsAt = CMTime(seconds: self.killFrame, preferredTimescale: 600)
             
             changeStateToWaiting()
+            
+            react()
         case .failed:
             print("Video failed to load: \(String(describing: item.error))")
         default:
             break
         }
+    }
+    
+    func react() {
+        update()
+        draw()
     }
     
     func isInSaveZone() -> Bool {
@@ -410,14 +417,14 @@ class ViewController: NSViewController {
         debugLabel?.stringValue = """
         state=\(state)
         total kills=\(totalKills) saves=\(totalSaves)
-        distance=\(roundDistance)
-        distance source=\(distanceSource)
-        sensor reading per second=\(serialReader.readingsPerSecond)
+        distance source=\(distanceSource) value=\(roundDistance)
+        sensor reads per second=\(serialReader.readingsPerSecond)
         save zone=\(cfg.maxDistance) - \(cfg.maxDistance - cfg.saveZone), \(inSaveZone)
         kill zone=\(cfg.minDistance + cfg.deathZone) - \(cfg.minDistance), \(inKillZone)
         current frame=\(currentFrame)
         destination frame=\(destinationFrame)
         total frames=\(totalFrames)
+        rameRate=\(cfg.frameRate)
         kill frame=\(killFrame)
         audio volume=\(roundAudioVolume)
         is video playing=\(isPlaying)
