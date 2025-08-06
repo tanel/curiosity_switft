@@ -15,7 +15,9 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     func applicationDidFinishLaunching(_ aNotification: Notification) {
         if cfg.fullScreen {
             DispatchQueue.main.async {
-                NSApp.mainWindow?.toggleFullScreen(nil)
+                if let window = NSApplication.shared.windows.first {
+                    window.toggleFullScreen(nil)
+                }
             }
         }
     }
@@ -27,7 +29,4 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     func applicationSupportsSecureRestorableState(_ app: NSApplication) -> Bool {
         return true
     }
-
-
 }
-
