@@ -405,6 +405,7 @@ class ViewController: NSViewController {
         total kills=\(totalKills) saves=\(totalSaves)
         distance=\(roundDistance)
         distance source=\(distanceSource)
+        sensor reading per second=\(serialReader.readingsPerSecond)
         save zone=\(cfg.maxDistance) - \(cfg.maxDistance - cfg.saveZone), \(inSaveZone)
         kill zone=\(cfg.minDistance + cfg.deathZone) - \(cfg.minDistance), \(inKillZone)
         current frame=\(currentFrame)

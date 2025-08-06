@@ -14,6 +14,12 @@ class SerialReader: NSObject, ORSSerialPortDelegate {
     var latestValue: Int = 0
     var state: String = "Stopped"
     
+    // Keep track of how often do we actually read from the sensor
+    private var receivedCount = 0
+    private var lastCountResetTime = Date()
+    private(set) var readingsPerSecond = 0
+
+    
     private var useMovingAverageFilter: Bool = false
     private var movingAverage = MovingAverageFilter(size: 10)
 
@@ -40,6 +46,14 @@ class SerialReader: NSObject, ORSSerialPortDelegate {
     // MARK: - ORSSerialPortDelegate
 
     func serialPort(_ serialPort: ORSSerialPort, didReceive data: Data) {
+        receivedCount += 1
+        let now = Date()
+        if now.timeIntervalSince(lastCountResetTime) >= 1.0 {
+            readingsPerSecond = receivedCount
+            receivedCount = 0
+            lastCountResetTime = now
+        }
+
         if let line = String(data: data, encoding: .utf8)?
             .trimmingCharacters(in: .whitespacesAndNewlines),
             let value = Int(line) {
@@ -48,7 +62,6 @@ class SerialReader: NSObject, ORSSerialPortDelegate {
 
             latestValue = finalValue
             lastReceivedLine = line
-            print("Raw: \(value) → Final: \(finalValue)")
         }
     }
 
