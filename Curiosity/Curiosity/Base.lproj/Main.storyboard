@@ -749,6 +749,15 @@
                                     <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                                 </textFieldCell>
                             </textField>
+                            <textField hidden="YES" focusRingType="none" horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="5na-xq-zhK">
+                                <rect key="frame" x="18" y="137" width="1102" height="477"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                <textFieldCell key="cell" lineBreakMode="clipping" title="4000" id="gNF-X6-4Dx">
+                                    <font key="font" metaFont="system" size="350"/>
+                                    <color key="textColor" name="systemBlueColor" catalog="System" colorSpace="catalog"/>
+                                    <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
+                                </textFieldCell>
+                            </textField>
                             <customView id="kys-xP-5y0">
                                 <rect key="frame" x="0.0" y="0.0" width="1126" height="1003"/>
                                 <autoresizingMask key="autoresizingMask"/>
@@ -757,6 +766,7 @@
                     </view>
                     <connections>
                         <outlet property="debugLabel" destination="6nv-Co-HKt" id="lXk-Qd-mYr"/>
+                        <outlet property="distanceLabel" destination="5na-xq-zhK" id="wdH-9s-xUI"/>
                         <outlet property="distanceSlider" destination="6V8-J1-CXu" id="hZc-Rt-yQX"/>
                         <outlet property="hintLabel" destination="EWa-LM-WW4" id="mCI-T0-GA9"/>
                         <outlet property="numberLabel" destination="cA7-Xr-qpZ" id="Jcs-my-GHX"/>

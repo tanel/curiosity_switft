@@ -59,6 +59,7 @@ class ViewController: NSViewController {
     // Connected UI components
     @IBOutlet weak var distanceSlider: NSSlider!
     @IBOutlet weak var debugLabel: NSTextField!
+    @IBOutlet weak var distanceLabel: NSTextField!
     @IBOutlet weak var videoContainerView: NSView!
     @IBOutlet weak var numberLabel: NSTextField!
     @IBOutlet weak var hintLabel: NSTextField!
@@ -104,8 +105,12 @@ class ViewController: NSViewController {
         if cfg.debugOverlay {
             debugLabel.isHidden = false
             view.addSubview(debugLabel, positioned: .above, relativeTo: nil)
+            
+            distanceLabel.isHidden = false
+            view.addSubview(distanceLabel, positioned: .above, relativeTo: nil)
         } else {
             debugLabel.isHidden = true
+            distanceLabel.isHidden = true
         }
 
         // Initialize video player
@@ -418,6 +423,8 @@ class ViewController: NSViewController {
         port state: \(serialReader.state)
         use moving average: \(cfg.useMovingAverage)
         """
+        
+        distanceLabel.stringValue = "\(roundDistance)"
     }
         
     func isVideoPlaying(player: AVPlayer?) -> Bool {
